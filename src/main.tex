@@ -13,7 +13,15 @@
 \usepackage{float}          % [H] placement for figures and tables
 \usepackage{xcolor}         % colors (used by listings)
 \usepackage{listings}       % code listings
+\usepackage{enumitem}       % list alignment control
+\usepackage{enumitem}       % list alignment control
 \hypersetup{colorlinks=true, linkcolor=black, citecolor=black, urlcolor=blue!70!black}
+
+\setlist[itemize]{leftmargin=1.5em}
+\setlist[enumerate]{leftmargin=2.8em}
+
+\setlist[itemize]{leftmargin=1.5em}
+\setlist[enumerate]{leftmargin=2.8em}
 
 % ─── Code listing style ─────────────────────────────────────────────────────
 \lstset{
@@ -48,36 +56,36 @@
 \begin{titlepage}
     \centering
 
-    \includegraphics[width=0.3\textwidth]{../assets/logo}
+    {\color{gray!70}\rule{0.95\textwidth}{0.6pt}}\\[1.1cm]
 
-    \vspace{0.3cm}
-    {\large \LabelUniversity}\\[2pt]
-    {\large \LabelFaculty}
+    \includegraphics[width=0.22\textwidth]{../../diagram.jpg}\\[0.8cm]
 
-    \vspace{2.5cm}
-    {\Huge\bfseries \LabelTitle}
+    {\Large\bfseries \LabelUniversity}\\[2pt]
+    {\large \LabelFaculty}\\[1.2cm]
 
-    \vspace{0.6cm}
-    {\LARGE \LabelCode{} --- \LabelCourse}
+    {\color{gray!70}\rule{0.62\textwidth}{0.5pt}}\\[0.8cm]
 
-    \vspace{0.4cm}
-    {\Large \LabelAssignment}
+    {\Huge\bfseries \LabelTitle}\\[0.55cm]
+    {\LARGE \LabelCode{} --- \LabelCourse}\\[0.35cm]
+    {\large \LabelAssignment}
 
     \vfill
 
-    \begin{tabular}{r l}
-        \textbf{\LabelStudent:} & \StudentName  \\[4pt]
-        \textbf{\LabelGroup:}   & \StudyGroup   \\[4pt]
-        \textbf{\LabelSession:}      &
-        \StudySession \\[4pt]
-        \textbf{\LabelYear:}    & \AcademicYear \\[4pt]
-        \textbf{\LabelDate:}    & \today
-        
-        
-        \\
-    \end{tabular}
+    \setlength{\fboxsep}{12pt}
+    \fcolorbox{black!45}{gray!8}{%
+        \begin{minipage}{0.82\textwidth}
+            \begin{tabular}{@{}p{0.3\textwidth} p{0.64\textwidth}@{}}
+                \textbf{\LabelStudent:} & \StudentName \\[6pt]
+                \textbf{\LabelGroup:} & \StudyGroup \\[6pt]
+                \textbf{\LabelSession:} & \StudySession \\[6pt]
+                \textbf{\LabelYear:} & \AcademicYear \\[6pt]
+                \textbf{\LabelDate:} & \today
+            \end{tabular}
+        \end{minipage}%
+    }
 
-    \vspace{1.5cm}
+    \vfill
+    {\color{gray!70}\rule{0.95\textwidth}{0.6pt}}
 \end{titlepage}
 
 % ─── Table of contents ───────────────────────────────────────────────────────
@@ -95,27 +103,497 @@
 \section{Špecifikácia zadania}
 \label{sec:specifikacia}
 
+Toto zadanie je zamerané na modelovanie prostredia letiska tak, aby databáza
+neodrážala len technické fungovanie infraštruktúry, ale predovšetkým reálnu
+skúsenosť cestujúceho počas celej cesty. Cieľom projektu nie je detailná
+simulácia interných letiskových technológií, ale návrh dátového modelu, ktorý
+umožní prehľadne sledovať cestujúceho od odchodu na letisko až po úspešný
+nástup do lietadla.
+
+V praxi to znamená, že sa sústredíme na celý používateľský tok: cestujúci si
+kupuje letenku, má priradené miesto v lietadle, môže mať batožinu, presúva sa
+cez konkrétne letisko a je naviazaný na konkrétny let. Zároveň chceme vedieť,
+na akej trase sa daný let nachádza, či ide o priamy let alebo prestup, aká je
+zdrojová a cieľová destinácia a aký je aktuálny stav lietadla, ktoré let
+obsluhuje.
+
+Dôležitou súčasťou zadania je aj orientácia na aktuálnu polohu a stav lietadla.
+Používateľ alebo operátor systému má vedieť zistiť, či sa lietadlo nachádza v
+hangári, je priradené na runway, alebo je asociované s aktívnym letom. Tento
+pohľad je dôležitý najmä pri prestupoch a plánovaní nadväzných spojení, kde
+časová a stavová informácia rozhoduje o tom, či cestujúci stihne ďalší úsek
+cesty.
+
+
+Výsledkom má byť databázový model, ktorý bude dostatočne konzistentný na
+implementáciu informačného systému pre sledovanie cesty cestujúceho, plánovanie
+letov a evidenciu vzťahov medzi letiskami, lietadlami, letmi a cestujúcimi.
+
+\subsection*{Otázka 1}
+\textbf{Aký problém systém rieši a pre koho je určený? Aká je jeho pridaná hodnota?}
+
+Systém rieši evidenciu základných informácií o fungovaní letiska. Umožňuje
+ukladať a spravovať údaje o cestujúcich, letoch, letenkách, lietadlách a
+batožine. Cieľom je mať všetky tieto informácie prepojené tak, aby bolo možné
+jednoducho zistiť napríklad na aký let je cestujúci priradený, aké lietadlo
+daný let vykonáva alebo akú batožinu má cestujúci evidovanú.
+
+Systém je určený hlavne pre pracovníkov letiska, ktorí potrebujú pracovať s
+údajmi o letoch a cestujúcich. Môžu to byť napríklad pracovníci pri odbavení
+cestujúcich, pracovníci správy letov alebo administrátori systému.
+
+Pridaná hodnota systému je v tom, že všetky dôležité údaje sú uložené na jednom
+mieste a navzájom prepojené. Vďaka tomu je možné rýchlo získať potrebné
+informácie a znižuje sa riziko chýb pri práci s dátami.
+
+\subsection*{Otázka 2}
+\textbf{Kto sú aktéri systému? Aké majú role, zodpovednosti a úrovne prístupu?}
+
+Aktérmi systému sú cestujúci, piloti, pracovníci letiska a administrátor systému.
+
+Cestujúci je hlavný subjekt evidovaný v systéme. Systém uchováva jeho osobné
+údaje a informácie o letenkách, batožine a priradenom lete. Celý návrh databázy
+je z veľkej časti postavený okolo evidencie cestujúceho a jeho pohybu v rámci
+letiska až po nástup do lietadla.
+
+Pilot je aktér, ktorý je priradený ku konkrétnemu letu. Systém eviduje základné
+informácie o pilotovi a umožňuje priradiť pilota k letu, ktorý vykonáva. Pilot
+je teda zodpovedný za samotnú realizáciu letu.
+
+Pracovníci letiska pracujú so systémom pri každodennej prevádzke. Môžu evidovať
+údaje o letoch, lietadlách, runway, hangároch alebo spravovať informácie o
+cestujúcich, letenkách a batožine. Ich prístup je obmedzený len na tie časti
+systému, ktoré potrebujú pre svoju prácu.
+
+Administrátor systému má najvyššiu úroveň prístupu. Zodpovedá za správu
+databázy, kontrolu správnosti údajov a technickú údržbu systému. Má prístup ku
+všetkým údajom v databáze a zabezpečuje, aby systém fungoval správne.
+
+\subsection*{Otázka 3}
+\textbf{Aké sú kľúčové entity, ktoré systém musí evidovať? Prečo sú dôležité?}
+
+Kľúčové entity systému predstavujú hlavné objekty, ktoré sú potrebné na
+evidenciu letov a pohybu cestujúcich v rámci letiska.
+\newline
+
+Jednou z najdôležitejších entít je \textbf{passenger}, ktorá reprezentuje
+cestujúceho. Táto entita uchováva základné údaje o osobe, ktorá využíva let,
+napríklad meno, email alebo číslo pasu.
+
+Ďalšou kľúčovou entitou je \textbf{ticket}, ktorá predstavuje letenku
+cestujúceho. Tá prepája cestujúceho s konkrétnym letom a obsahuje informácie
+ako cena, číslo sedadla alebo stav letenky.
+
+Entita \textbf{flight} reprezentuje samotný let. Uchováva informácie o čase
+odletu a príletu, priradenom lietadle, pilotovi a runway. Táto entita je
+dôležitá, pretože prepája viacero ďalších entít v systéme.
+
+Entita \textbf{airplane} reprezentuje lietadlo, ktoré vykonáva let. Uchováva
+informácie napríklad o leteckej spoločnosti, modeli lietadla alebo jeho
+kapacite.
+
+Entita \textbf{airport} reprezentuje letisko, z ktorého let odlieta alebo na
+ktoré prichádza. Uchováva základné informácie ako názov letiska, kód, mesto a
+krajinu.
+
+Entita \textbf{route} reprezentuje trasu letu medzi dvoma letiskami. Umožňuje
+evidovať, z ktorého letiska let odlieta a na ktoré smeruje.
+
+Entita \textbf{baggage} eviduje batožinu cestujúceho, ktorá je priradená ku
+konkrétnej letenke.
+\newline
+
+Tieto entity sú kľúčové, pretože spolu reprezentujú hlavný proces systému --
+evidenciu cestujúceho, jeho letenky, letu a súvisiacich informácií.
+
+\subsection*{Otázka 4}
+\textbf{Aké biznis pravidlá a obmedzenia musí systém rešpektovať? Ako sa premietnu do integritných obmedzení?}
+
+Systém musí rešpektovať viaceré biznis pravidlá, ktoré zabezpečujú správnosť a
+logiku údajov uložených v databáze. Tieto pravidlá sa v databáze implementujú
+pomocou rôznych integritných obmedzení, napríklad kontrolných podmienok
+(\texttt{CHECK}), unikátnych obmedzení alebo vzťahov medzi tabuľkami.
+\newline
+Jedným z pravidiel je, že cena letenky nemôže byť záporná. Letenka musí mať
+vždy kladnú alebo nulovú hodnotu. Toto pravidlo je možné implementovať pomocou
+kontrolného obmedzenia napríklad:
+
+\begin{lstlisting}[language=SQL]
+CHECK (price >= 0)
+\end{lstlisting}
+
+Ďalším pravidlom je, že čas príletu musí byť vždy neskôr ako čas odletu. Let
+nemôže skončiť skôr, ako začal. Toto pravidlo sa dá zabezpečiť pomocou
+kontrolného obmedzenia:
+
+\begin{lstlisting}[language=SQL]
+CHECK (arrival_time > departure_time)
+\end{lstlisting}
+
+Systém tiež zabezpečuje, že hmotnosť batožiny musí byť väčšia ako nula. Nie je
+možné evidovať batožinu s nulovou alebo zápornou hmotnosťou. Toto pravidlo je
+možné implementovať napríklad pomocou:
+
+\begin{lstlisting}[language=SQL]
+CHECK (weight > 0)
+\end{lstlisting}
+
+Ďalším pravidlom je, že kapacita lietadla musí byť kladné číslo, pretože
+lietadlo musí mať aspoň jedno sedadlo. Toto sa dá implementovať napríklad
+pomocou:
+
+\begin{lstlisting}[language=SQL]
+CHECK (capacity > 0)
+\end{lstlisting}
+
+Systém tiež zabezpečuje, že dve osoby nemôžu mať rovnaké sedadlo na tom istom
+lete. Jedno sedadlo môže byť obsadené len jedným cestujúcim. Toto pravidlo sa
+dá implementovať pomocou unikátneho obmedzenia napríklad na kombináciu:
+
+\begin{lstlisting}[language=SQL]
+UNIQUE (flight_id, seat_number)
+\end{lstlisting}
+
+Ďalším pravidlom je, že zdrojové a cieľové letisko v trase letu nemôžu byť
+rovnaké, pretože let musí smerovať z jedného letiska na iné. Toto pravidlo je
+možné implementovať napríklad pomocou:
+
+\begin{lstlisting}[language=SQL]
+CHECK (src_airport_id <> dest_airport_id)
+\end{lstlisting}
+
+Tieto biznis pravidlá zabezpečujú, že systém nebude umožňovať ukladať
+nelogické alebo neplatné údaje a že údaje v databáze budú konzistentné a
+realistické vzhľadom na fungovanie letiska.
+
 
 \section{Definovanie používateľských scenárov}
 \label{sec:usecase}
 
+Táto sekcia obsahuje päť realistických používateľských scenárov, ktoré
+reprezentujú typické operácie systému. Scenáre sú navrhnuté tak, aby neboli
+iba jednoduché CRUD operácie, ale pokrývali celý proces od interakcie aktéra až
+po zmeny na dátovej vrstve.
 
-\subsection{UC1}
-\subsection{UC2}
-\subsection{UC3}
-\subsection{UC4}
+\subsection{Rezervácia letu a vystavenie letenky}
 
+\textbf{1. Stručný popis}
+
+Scenár pokrýva proces, v ktorom cestujúci vyhľadá vhodný let, dokončí rezerváciu
+a systém mu vystaví letenku so sedadlom.
+
+\textbf{2. Hlavný tok (krok za krokom)}
+\begin{enumerate}
+    \item Cestujúci zadá odletové a cieľové letisko, dátum a preferencie.
+    \item Systém zobrazí dostupné lety.
+    \item Cestujúci vyberie konkrétny let.
+    \item Systém zobrazí dostupné sedadlá a cenu.
+    \item Cestujúci potvrdí rezerváciu a vykoná platbu.
+    \item Systém priradí sedadlo a vytvorí letenku.
+    \item Cestujúci dostane potvrdenie rezervácie.
+\end{enumerate}
+
+\textbf{3. Čo sa deje na dátovej vrstve}
+\begin{itemize}
+    \item \textbf{Prehľadávané tabuľky:} \texttt{airport}, \texttt{route},
+    \texttt{flight}, \texttt{airplane}, \texttt{ticket}, \texttt{passenger}.
+    \item \textbf{Čítanie dát:} systém vyhľadá lety podľa zdrojového/cieľového
+    letiska a dátumu, následne načíta kapacitu lietadla a už obsadené sedadlá.
+    \item \textbf{Vznik nových entít:} po potvrdení rezervácie vzniká nový záznam
+    \texttt{ticket} (väzba na \texttt{passenger} a \texttt{flight}).
+    \item \textbf{Menené záznamy:} aktualizuje sa stav letenky (napr. rezervovaná,
+    zaplatená) a čas vytvorenia rezervácie.
+    \item \textbf{Agregácie:} počíta sa počet predaných/rezervovaných sedadiel na
+    daný let a porovnáva sa s kapacitou lietadla.
+    \item \textbf{Kontroly:} unikátnosť sedadla v rámci letu
+    (\texttt{UNIQUE (flight\_id, seat\_number)}), nezáporná cena
+    (\texttt{CHECK (price >= 0)}), konzistencia väzieb cez cudzie kľúče.
+\end{itemize}
+
+\textbf{4. Alternatívne toky}
+\begin{itemize}
+    \item Let je vypredaný: systém ponúkne iný let alebo termín.
+    \item Platba zlyhá: rezervácia sa nedokončí a letenka sa nevystaví.
+    \item Sedadlo bolo medzičasom obsadené: systém vyžiada výber nového sedadla.
+\end{itemize}
+
+\textbf{5. Podporný UML diagram}
+
+\textbf{Sekvenčný diagram} je vhodný, pretože zachytáva komunikáciu medzi
+cestujúcim, rezervačným modulom, platobným modulom a databázou v presnom
+časovom poradí.
+
+\subsection{Zobrazenie trasy letu a cieľovej destinácie}
+
+\textbf{1. Stručný popis}
+
+Scenár pokrýva situáciu, keď cestujúci alebo pracovník letiska potrebuje získať
+prehľad o trase letu, prestupoch a finálnej destinácii.
+
+\textbf{2. Hlavný tok (krok za krokom)}
+\begin{enumerate}
+    \item Používateľ otvorí detail letu alebo letenky.
+    \item Systém načíta údaje o trase letu.
+    \item Systém zobrazí odletové a príletové letisko.
+    \item Systém vyhodnotí, či ide o priamy let alebo prestup.
+    \item Používateľ vidí kompletný itinerár vrátane cieľovej destinácie.
+\end{enumerate}
+
+\textbf{3. Čo sa deje na dátovej vrstve}
+\begin{itemize}
+    \item \textbf{Prehľadávané tabuľky:} \texttt{ticket}, \texttt{flight},
+    \texttt{route}, \texttt{airport}.
+    \item \textbf{Čítanie dát:} podľa letenky sa načíta priradený let, k nemu trasa
+    a následne názvy/kódy zdrojového a cieľového letiska.
+    \item \textbf{Vznik nových entít:} v tomto scenári zvyčajne nevznikajú nové
+    záznamy, ide primárne o čítanie a skladanie údajov.
+    \item \textbf{Menené záznamy:} voliteľne sa môže zapisovať auditný záznam o
+    zobrazení detailu letu (ak je audit zapnutý).
+    \item \textbf{Agregácie:} pri prestupoch sa zostaví agregovaný itinerár z
+    viacerých segmentov (poradie úsekov, celkový čas cesty, počet prestupov).
+    \item \textbf{Kontroly:} časová nadväznosť segmentov, konzistentnosť trás,
+    existencia všetkých referencovaných letísk.
+\end{itemize}
+
+\textbf{4. Alternatívne toky}
+\begin{itemize}
+    \item Trasa nie je dostupná: systém zobrazí stav „trasa nie je definovaná".
+    \item Let bol zmenený: systém zobrazí aktualizovanú trasu a upozornenie.
+\end{itemize}
+
+\textbf{5. Podporný UML diagram}
+
+\textbf{Diagram aktivít} je vhodný, pretože prehľadne zobrazuje vetvenie
+(piamy let vs. prestup) a rozhodovacie body pri skladaní itinerára.
+
+\subsection{Sledovanie aktuálneho stavu letu a lietadla}
+
+\textbf{1. Stručný popis}
+
+Scenár pokrýva monitorovanie aktuálneho stavu letu a prevádzkového stavu
+priradeného lietadla (napr. hangár, runway, aktívny let).
+
+\textbf{2. Hlavný tok (krok za krokom)}
+\begin{enumerate}
+    \item Používateľ vyberie let, ktorý chce sledovať.
+    \item Systém načíta priradené lietadlo.
+    \item Systém zistí aktuálny stav letu (napr. boarding, delayed, departed).
+    \item Systém vyhodnotí, či je lietadlo v hangári, na runway alebo v aktívnom
+    lete.
+    \item Systém zobrazí konsolidovaný status letu aj lietadla.
+\end{enumerate}
+
+\textbf{3. Čo sa deje na dátovej vrstve}
+\begin{itemize}
+    \item \textbf{Prehľadávané tabuľky:} \texttt{flight}, \texttt{airplane},
+    \texttt{runway}, \texttt{airplane\_hangar}, \texttt{hangar}, prípadne
+    tabuľka stavových udalostí letu (ak je implementovaná).
+    \item \textbf{Čítanie dát:} systém načíta stav letu, priradené lietadlo,
+    runway a informáciu, či je lietadlo evidované v hangári.
+    \item \textbf{Vznik nových entít:} spravidla nevznikajú nové doménové entity,
+    môže sa však ukladať technický záznam o monitorovaní.
+    \item \textbf{Menené záznamy:} pri príchode nových telemetrických/prevádzkových
+    dát sa mení aktuálny status letu alebo status lietadla.
+    \item \textbf{Agregácie:} skladá sa jednotný „live status“ z viacerých zdrojov
+    (stav letu + poloha lietadla + stav runway/hangára).
+    \item \textbf{Kontroly:} systém overuje stavové konflikty (napr. lietadlo
+    nemôže byť súčasne v hangári aj v aktívnom odlete), platnosť väzieb a
+    časovú čerstvosť dát.
+\end{itemize}
+
+\textbf{4. Alternatívne toky}
+\begin{itemize}
+    \item Lietadlo nie je priradené: systém vráti informáciu o chýbajúcom
+    priradení.
+    \item Stavové údaje sú neaktuálne: systém zobrazí posledný dostupný stav s
+    časovou značkou.
+\end{itemize}
+
+\textbf{5. Podporný UML diagram}
+
+\textbf{Sekvenčný diagram} je vhodný, pretože ukazuje postupné dopyty na viaceré
+prevádzkové entity a následné zlúčenie výsledkov do jedného statusu.
+
+\subsection{Odbavenie cestujúceho a evidovanie batožiny}
+
+\textbf{1. Stručný popis}
+
+Scenár pokrýva check-in proces, v ktorom sa overí letenka cestujúceho, zaznamená
+sa odbavenie a eviduje sa odovzdaná batožina.
+
+\textbf{2. Hlavný tok (krok za krokom)}
+\begin{enumerate}
+    \item Cestujúci sa identifikuje na check-ine.
+    \item Systém overí platnosť letenky a priradenie k letu.
+    \item Pracovník zaznamená batožinu a jej hmotnosť.
+    \item Systém uloží záznam o batožine.
+    \item Systém nastaví stav cestujúceho na odbavený.
+\end{enumerate}
+
+\textbf{3. Čo sa deje na dátovej vrstve}
+\begin{itemize}
+    \item \textbf{Prehľadávané tabuľky:} \texttt{passenger}, \texttt{ticket},
+    \texttt{flight}, \texttt{baggage}.
+    \item \textbf{Čítanie dát:} systém overí, že letenka patrí cestujúcemu,
+    že let existuje a je otvorený pre check-in.
+    \item \textbf{Vznik nových entít:} vzniká záznam \texttt{baggage} (alebo viac
+    záznamov pri viacerých kusoch batožiny) naviazaný na letenku/cestujúceho.
+    \item \textbf{Menené záznamy:} mení sa stav letenky na „checked-in“ a prípadne
+    sa doplní čas odbavenia a identifikátor pracovníka.
+    \item \textbf{Agregácie:} počíta sa celková hmotnosť batožiny na cestujúceho,
+    prípadne porovnanie so zahrnutým limitom.
+    \item \textbf{Kontroly:} \texttt{CHECK (weight > 0)}, validita letenky,
+    dostupnosť letu pre check-in, prípadné doplatky pri nadlimitnej hmotnosti.
+\end{itemize}
+
+\textbf{4. Alternatívne toky}
+\begin{itemize}
+    \item Neplatná letenka: systém check-in zamietne.
+    \item Nadlimitná batožina: systém vyžiada doplatok alebo úpravu batožiny.
+    \item Let je uzavretý pre check-in: systém odbavenie neumožní.
+\end{itemize}
+
+\textbf{5. Podporný UML diagram}
+
+\textbf{Diagram aktivít} je vhodný, pretože obsahuje viacero rozhodnutí
+(validita letenky, hmotnosť batožiny, otvorenosť check-inu).
+
+\subsection{Boarding cestujúceho do lietadla}
+
+\textbf{1. Stručný popis}
+
+Scenár pokrýva nástup cestujúceho do lietadla pri gate po úspešnom odbavení a
+bezpečnostnej kontrole.
+
+\textbf{2. Hlavný tok (krok za krokom)}
+\begin{enumerate}
+    \item Cestujúci sa dostaví ku gate a predloží boarding pass.
+    \item Systém overí, že letenka patrí k správnemu letu a je v stave „checked-in".
+    \item Systém overí, že boarding je pre daný let otvorený.
+    \item Pracovník potvrdí nástup cestujúceho.
+    \item Systém zaznamená cestujúceho ako „boarded".
+\end{enumerate}
+
+\textbf{3. Čo sa deje na dátovej vrstve}
+\begin{itemize}
+    \item \textbf{Prehľadávané tabuľky:} \texttt{ticket}, \texttt{flight},
+    \texttt{passenger} a prípadne tabuľka udalostí nástupu (ak je vedená).
+    \item \textbf{Čítanie dát:} systém overí stav letenky (checked-in), príslušnosť
+    k letu a to, či je boarding pre let otvorený.
+    \item \textbf{Vznik nových entít:} voliteľne vzniká záznam o boarding udalosti
+    (čas skenu, gate, operátor).
+    \item \textbf{Menené záznamy:} stav letenky sa mení na „boarded“, dopĺňa sa
+    čas nástupu.
+    \item \textbf{Agregácie:} počíta sa počet nastúpených cestujúcich a porovnanie
+    s počtom odbavených/predaných leteniek pre daný let.
+    \item \textbf{Kontroly:} idempotencia nástupu (zákaz duplicitného boardingu),
+    časové okno boardingu, zhoda boarding passu s letom a cestujúcim.
+\end{itemize}
+
+\textbf{4. Alternatívne toky}
+\begin{itemize}
+    \item Boarding pass je neplatný alebo pre iný let: nástup sa zamietne.
+    \item Cestujúci nie je odbavený: systém vráti cestujúceho na check-in.
+    \item Gate je uzavretý: nástup nie je povolený.
+\end{itemize}
+
+\textbf{5. Podporný UML diagram}
+
+\textbf{Sekvenčný diagram} je vhodný, pretože presne zachytáva interakciu medzi
+pracovníkom gate, boarding systémom a databázou počas krátkej, ale kritickej
+operácie.
 
 \section{Návrh relačného modelu}
 \label{sec:relacnymodel}
 
 \subsection{Súbor tabuliek}
 
+Relačný model je postavený na nasledovných tabuľkách, pričom každá z nich má
+jasnú doménovú zodpovednosť:
+
+\begin{itemize}
+    \item \texttt{airport} --- evidencia letísk (identifikátor, názov, kód),
+    \item \texttt{passenger} --- evidencia cestujúcich (meno, priezvisko),
+    \item \texttt{ticket} --- obchodná a prevádzková väzba medzi cestujúcim a
+    letom (cena, číslo sedadla),
+    \item \texttt{flight} --- plánované a realizované lety s časmi odletu a
+    príletu, naviazané na lietadlo a runway,
+    \item \texttt{airplane} --- lietadlá vrátane informácie o aerolinke a stave,
+    \item \texttt{baggage} --- batožina priradená ku konkrétnemu cestujúcemu,
+    \item \texttt{runway} --- dráhy letiska vrátane ich aktuálneho stavu,
+    \item \texttt{hangar} --- hangáre s kapacitou a stavom dostupnosti,
+    \item \texttt{airplane\_hangar} --- prepojovacia tabuľka pre umiestnenie
+    lietadla v hangári,
+    \item \texttt{route} --- definícia trasy letu medzi zdrojovým a cieľovým
+    letiskom,
+    \item \texttt{airplane\_passenger} --- pomocná väzba pre kontext pohybu
+    cestujúceho vo vzťahu k letisku.
+\end{itemize}
+
+Medzi tabuľkami sú definované cudzie kľúče, ktoré zabezpečujú referenčnú
+integritu a zabraňujú vzniku nekonzistentných dát. Základné väzby sú:
+\texttt{baggage -> passenger}, \texttt{ticket -> passenger},
+\texttt{ticket -> flight}, \texttt{flight -> airplane},
+\texttt{flight -> runway}, \texttt{runway -> airport},
+\texttt{hangar -> airport}, \texttt{airplane\_hangar -> airplane/hangar},
+\texttt{route -> flight} a \texttt{route -> airport} (zdroj aj cieľ).
+
+Takto navrhnutá štruktúra umožňuje jednoducho zostavovať dotazy, ktoré kombinujú
+obchodné informácie (letenka, cestujúci), prevádzkové informácie (lietadlo,
+dráha, hangár) a navigačné informácie (trasa, prestup, destinácia).
+
 
 \subsection{Zhodnotenie}
 
 
+\textbf{Ktorá časť riešenia nám zabrala najviac času a prečo?}
+
+Čo sa týka navrhu celkovej štruktúri zadanie, pretože najprv sme zvažovali celkový návrh z hladiska infraštruktúri letiska ale postupom času sme zmenili túto možnosť na návrh z pohľadu bežného cestujúceho teda od samotného príchodu na letisko až ku odletu, prestupmi letov a hľavne evidenciou jednotlivých pasažierov, lietadiel, pilotov, batožiny a iného. Jednoducho sme chceli mať prehľad na všetkým nie len sa pasažier check-inom a hotovo.Takže to je dôvod prečo nám to zobralo najviac času lebo sme to prerábali na iný návrh. 
+
+\textbf{S čím sme si nevedeli poradiť a ako sme to vyriešili?}
+Pri návrhu databázového modelu sme narazili na problém, ako reprezentovať cestu cestujúceho s prestupom. V reálnom systéme môže cestujúci absolvovať viac letov na jednej ceste, napríklad Bratislava → Frankfurt → New York. Najprv sme uvažovali o tom, že jeden ticket bude obsahovať viac letov. Tento prístup by však vyžadoval vytvorenie dodatočnej väzobnej tabuľky medzi ticket a flight.
+
+Nakoniec sme sa rozhodli pre jednoduchšie riešenie, kde jeden ticket reprezentuje jeden let. V prípade prestupu má cestujúci viac leteniek, pričom každá je priradená ku konkrétnemu letu. Tento prístup je jednoduchší na implementáciu a zároveň postačuje pre potreby nášho systému.
+
+Nie je to vec,s ktorou by sme si nevedeli rady ale dúmali sme nad tým, či budeme chcieť mať prefektné real-life riešenie alebo si ulahčíme malinko prácu nakoľko už sme mali prekročený počet potrebných tabuliek na absolvovanie predmetu.
+
+\textbf{Čo bolo pre nás úplne nové?}
+
+Oproti minulým rokom sa nám pačilo prepojenie návrhu aj s potrebnými USE CASE-ami, pretože sme si vedeli náš návrh skontrolovať pri reálnom produkčnom chode takéhoto navrhovaného systému. 
+
+\textbf{Pokrýva naše riešenie správne zvolenú tému? Čo sme zjednodušili alebo vynechali?}
+
+Riešenie pokrýva zvolenú tému správne, pretože zahŕňa kľúčové procesy
+cestujúceho od rezervácie až po nástup do lietadla a zároveň modeluje
+prevádzkové súvislosti letu. 
+Zjednodušenie nastalo už v spomínanom odstránení / vynechaní tabuľky JOURNEY, ktorá by bola z dôvodu lepšej evidencí prechodov pri jednotlivých letov. Z hľadiska, že ide o školský projekt a prekročný počet tabuliek sme túto možnosť zamietli.
+
+\textbf{Aký bol náš pracovný proces? Postupovali sme iteratívne?}
+
+Najprv sme definovali doménu a entity, následne
+sme vytvorili prvú verziu väzieb a pravidiel, potom sme ju opakovane
+upravovali podľa používateľských scenárov. Po každej iterácii sme kontrolovali,
+či návrh stále podporuje všetky kľúčové operácie systému bez porušenia
+konzistencie dát.
+
+\textbf{Použili sme AI nástroje? Ak áno – na čo presne, aký bol výstup a ako sme ho upravovali?}
+
+Áno, AI nástroje sme použili ako podporný prostriedok na štruktúrovanie textu,
+spresnenie formulácií a návrh alternatívnych verzií popisov use-case scenárov. Takisto aj na kontrolu správnosti modelu,ktorý sme sami navrhli, aby sme predišli problémom, ktoré mohli nastať v neskoršej časti zadania. Výstupy sme vždy manuálne kontrolovali, upravovali podľa zadania a
+prispôsobovali konkrétnemu dátovému modelu, aby výsledný text zodpovedal
+reálnemu návrhu a neobsahoval všeobecné alebo nepresné tvrdenia.
+
+\textbf{Prečo sme si vybrali túto rámcovú tému?}
+
+Tému letiskového systému sme si vybrali paradoxne preto, že ani jeden z nás nikdy neletel lietadlom tak chceli sme mať prehľad ako fungujú letiská a procesy pri nástupe do lietadlá. 
+
 \subsection{Zdroje}
+
+\begin{itemize}
+    \item Database Design Tutorial: \url{https://www.geeksforgeeks.org/database-design/}
+    \item Lucidchart --- ER Diagram Guide: \url{https://www.lucidchart.com/pages/er-diagrams}
+    \item PostgreSQL Documentation (PostgreSQL Global Development Group): \url{https://www.postgresql.org/docs/}
+\end{itemize}
 
 
 % \printbibliography
@@ -290,7 +768,7 @@ For anything not covered here, the Overleaf documentation
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.25\textwidth]{../assets/logo}
+    \includegraphics[width=0.25\textwidth]{../../diagram.jpg}
     \caption{Faculty logo used on the cover page}
     \label{fig:logo}
 \end{figure}

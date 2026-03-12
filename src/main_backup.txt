@@ -1,0 +1,315 @@
+%! Author = jdubec
+%! Date = 16/02/2026
+
+\documentclass[11pt, a4paper]{article}
+
+% ─── Packages ────────────────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{booktabs}       % nicer tables (\toprule, \midrule, \bottomrule)
+\usepackage{float}          % [H] placement for figures and tables
+\usepackage{xcolor}         % colors (used by listings)
+\usepackage{listings}       % code listings
+\hypersetup{colorlinks=true, linkcolor=black, citecolor=black, urlcolor=blue!70!black}
+
+% ─── Code listing style ─────────────────────────────────────────────────────
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    xleftmargin=2em,
+    framexleftmargin=1.5em
+}
+% Pro tip: for syntax highlighting, look into the 'minted' package.
+
+% ─── Bibliography ────────────────────────────────────────────────────────────
+\usepackage[style=numeric, backend=bibtex]{biblatex}
+\addbibresource{references.bib}
+
+% ─── Language (swap to lang/sk for Slovak) ───────────────────────────────────
+\input{lang/sk}
+
+% ─── Student details ─────────────────────────────────────────────────────────
+\newcommand{\StudentName}{Filip Múdry, Dániel Ruzsik}
+\newcommand{\TeacherName}{Ing. Lukáš Rucek}
+\newcommand{\StudyGroup}{Skupina 8}
+\newcommand{\StudySession}{Streda 08:00, \TeacherName}
+\newcommand{\AcademicYear}{2025/2026}
+
+% =============================================================================
+\begin{document}
+
+% ─── Cover page ──────────────────────────────────────────────────────────────
+\begin{titlepage}
+    \centering
+
+    \includegraphics[width=0.3\textwidth]{../assets/logo}
+
+    \vspace{0.3cm}
+    {\large \LabelUniversity}\\[2pt]
+    {\large \LabelFaculty}
+
+    \vspace{2.5cm}
+    {\Huge\bfseries \LabelTitle}
+
+    \vspace{0.6cm}
+    {\LARGE \LabelCode{} --- \LabelCourse}
+
+    \vspace{0.4cm}
+    {\Large \LabelAssignment}
+
+    \vfill
+
+    \begin{tabular}{r l}
+        \textbf{\LabelStudent:} & \StudentName  \\[4pt]
+        \textbf{\LabelGroup:}   & \StudyGroup   \\[4pt]
+        \textbf{\LabelSession:}      &
+        \StudySession \\[4pt]
+        \textbf{\LabelYear:}    & \AcademicYear \\[4pt]
+        \textbf{\LabelDate:}    & \today
+        
+        
+        \\
+    \end{tabular}
+
+    \vspace{1.5cm}
+\end{titlepage}
+
+% ─── Table of contents ───────────────────────────────────────────────────────
+\renewcommand{\contentsname}{\LabelContents}
+\tableofcontents
+\newpage
+
+% =============================================================================
+% This document serves as both the assignment template and a quick guide
+% to the LaTeX features you will need. Replace the content, keep the structure.
+%
+% Template source: https://github.com/FIIT-Databases/assignment-template
+% =============================================================================
+
+\section{Špecifikácia zadania}
+\label{sec:specifikacia}
+
+
+\section{Definovanie používateľských scenárov}
+\label{sec:usecase}
+
+
+\subsection{UC1}
+\subsection{UC2}
+\subsection{UC3}
+\subsection{UC4}
+
+
+\section{Návrh relačného modelu}
+\label{sec:relacnymodel}
+
+\subsection{Súbor tabuliek}
+
+
+\subsection{Zhodnotenie}
+
+
+\subsection{Zdroje}
+
+
+% \printbibliography
+
+
+
+
+
+
+
+
+
+
+\section{Analysis}
+\label{sec:analysis}
+
+The goal of this project was to create a submission template for the DBS
+course that students can clone and start writing in immediately. The template
+should be easy to use, support Slovak and English, and not require any prior
+\LaTeX{} experience\footnote{If this is your first time with \LaTeX{}, the
+Overleaf guide \cite{overleaf-docs} covers everything you need in about 30 minutes.}.
+
+The template repository is available at \cite{template-repo}.
+
+% ── Subsections ──────────────────────────────────────────────────────────────
+% Use \subsection{} and \subsubsection{} when you need more structure.
+
+\subsection{Requirements}
+
+We identified the following requirements:
+
+\begin{itemize}
+    \item Clean cover page with faculty branding.
+    \item Bilingual support (SK/EN) via a single toggle.
+    \item Examples of tables, figures, code, and citations.
+    \item Minimal package dependencies --- it should compile everywhere.
+\end{itemize}
+
+When listing ordered steps, use \texttt{enumerate} instead:
+
+\begin{enumerate}
+    \item Clone the repository.
+    \item Edit \texttt{main.tex}.
+    \item Run \texttt{make}.
+    \item Submit the PDF.
+\end{enumerate}
+
+
+\newpage
+\section{Proposal}
+\label{sec:proposal}
+
+We compared a few approaches before settling on the current structure.
+Table~\ref{tab:comparison} summarizes our options.
+
+% ── Tables ───────────────────────────────────────────────────────────────────
+% Use \begin{table}[H] to place the table exactly here.
+% Label it with \label{} and reference it with Table~\ref{}.
+
+\begin{table}[H]
+    \centering
+    \caption{Comparison of template approaches}
+    \label{tab:comparison}
+    \begin{tabular}{l c c c}
+        \toprule
+        \textbf{Approach}  & \textbf{Easy to edit} & \textbf{Bilingual} & \textbf{Compiles anywhere} \\
+        \midrule
+        Word document       & yes                   & manual             & n/a  \\
+        Markdown + Pandoc   & yes                   & no                 & maybe \\
+        \LaTeX{} template   & yes                   & yes                & yes  \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+We chose \LaTeX{} because it handles structured documents, citations,
+and cross-references well --- things that matter when writing technical
+reports\footnote{It also looks way better than a Word document. But we are
+biased.}. Unrelated: the wood frog can survive being frozen solid for months ---
+its heart stops, it stops breathing, and in spring it just thaws and hops away.
+We found this less stressful than debugging \LaTeX{} table alignment.
+
+
+\newpage
+\section{Implementation}
+\label{sec:implementation}
+
+The template lives in a simple directory structure with localization files
+separated from the main document. Switching language requires changing one
+line:
+
+% ── Code listings ────────────────────────────────────────────────────────────
+% Use lstlisting for short code snippets.
+
+\begin{lstlisting}[language=TeX, caption={Switching language in the preamble}]
+% English
+\input{lang/en}
+
+% Slovak
+\input{lang/sk}
+\end{lstlisting}
+
+For SQL or other languages, change the \texttt{language} parameter:
+
+\begin{lstlisting}[language=SQL, caption={Example SQL query}]
+SELECT s.name, COUNT(*) AS submission_count
+FROM students s
+JOIN submissions sub ON s.id = sub.student_id
+GROUP BY s.name
+ORDER BY submission_count DESC;
+\end{lstlisting}
+
+% ── Inline code ──────────────────────────────────────────────────────────────
+% Use \texttt{} for inline code: \texttt{SELECT * FROM ...}
+
+References to tables, figures, and sections are automatic. For example,
+this is Section~\ref{sec:implementation}, the comparison is in
+Table~\ref{tab:comparison}, and the faculty logo is shown in
+Figure~\ref{fig:logo} in Attachment~\ref{sec:attachment-a1}.
+If you add or reorder content, the numbers update on the next build.
+
+% ── Citations ────────────────────────────────────────────────────────────────
+% Add entries to references.bib, then cite them with \cite{key}.
+% The bibliography at the end is generated automatically.
+
+The database fundamentals referenced throughout the course are covered
+in \cite{elmasri2016}. For PostgreSQL-specific syntax, see
+\cite{postgresql-docs}.
+
+
+\newpage
+\section{Challenges}
+\label{sec:challenges}
+
+The main challenge was keeping the template simple enough that a student
+seeing \LaTeX{} for the first time would not immediately close the file.
+We solved this by limiting the preamble to essential packages and
+putting all examples in one place --- this document.
+
+We also learned that BibTeX interprets \texttt{@} signs in comments as
+entry types, which caused confusing errors. Small things like this are
+easy to fix once you know about them, but hard to debug the first time\footnote{A
+group of frogs is called an ``army.'' A group of students debugging BibTeX at
+2\,AM is called ``Tuesday.''}.
+
+
+\newpage
+\section{Conclusion}
+\label{sec:conclusion}
+
+The template meets the requirements from Section~\ref{sec:analysis}.
+It compiles with a standard \LaTeX{} distribution, supports two
+languages, and provides working examples of every feature students
+are likely to need.
+
+For anything not covered here, the Overleaf documentation
+\cite{overleaf-docs} is an excellent reference.
+
+% ─── Bibliography ────────────────────────────────────────────────────────────
+\printbibliography
+
+% ─── Attachments ─────────────────────────────────────────────────────────────
+\newpage
+\appendix
+
+\section{Sample figures}
+\label{sec:attachment-a1}
+
+% ── Figures ──────────────────────────────────────────────────────────────────
+% Use \begin{figure}[H] to place the figure exactly here.
+% Label it with \label{} and reference it with Figure~\ref{}.
+% Keep images in the assets/ directory.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.25\textwidth]{../assets/logo}
+    \caption{Faculty logo used on the cover page}
+    \label{fig:logo}
+\end{figure}
+
+Place your diagrams, screenshots, and other supporting images in this
+section. Reference them from the main text using
+\texttt{Figure\~{}\textbackslash ref\{fig:logo\}}.
+
+Some frogs can absorb water through a patch of skin on their belly called a
+``drinking patch'' --- they literally sit in puddles to hydrate. This has
+nothing to do with databases but is objectively more interesting than
+anything on this page.
+
+% You can control the image size with the width parameter:
+%   width=0.5\textwidth   ... half the page width
+%   width=5cm             ... exact size
+%   scale=0.8             ... 80% of original
+
+% To add more figures, copy the block above and change the file path,
+% caption, and label.
+
+\end{document}
