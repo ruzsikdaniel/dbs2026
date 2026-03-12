@@ -1,4 +1,4 @@
-%! Author = jdubec
+%%! Author = jdubec
 %! Date = 16/02/2026
 
 \documentclass[11pt, a4paper]{article}
@@ -13,15 +13,7 @@
 \usepackage{float}          % [H] placement for figures and tables
 \usepackage{xcolor}         % colors (used by listings)
 \usepackage{listings}       % code listings
-\usepackage{enumitem}       % list alignment control
-\usepackage{enumitem}       % list alignment control
 \hypersetup{colorlinks=true, linkcolor=black, citecolor=black, urlcolor=blue!70!black}
-
-\setlist[itemize]{leftmargin=1.5em}
-\setlist[enumerate]{leftmargin=2.8em}
-
-\setlist[itemize]{leftmargin=1.5em}
-\setlist[enumerate]{leftmargin=2.8em}
 
 % ─── Code listing style ─────────────────────────────────────────────────────
 \lstset{
@@ -38,6 +30,10 @@
 % ─── Bibliography ────────────────────────────────────────────────────────────
 \usepackage[style=numeric, backend=bibtex]{biblatex}
 \addbibresource{references.bib}
+
+\setcounter{biburlnumpenalty}{9000}
+\setcounter{biburlucpenalty}{9000}
+\setcounter{biburllcpenalty}{9000}
 
 % ─── Language (swap to lang/sk for Slovak) ───────────────────────────────────
 \input{lang/sk}
@@ -56,36 +52,36 @@
 \begin{titlepage}
     \centering
 
-    {\color{gray!70}\rule{0.95\textwidth}{0.6pt}}\\[1.1cm]
+    \includegraphics[width=0.3\textwidth]{logo.png}
 
-    \includegraphics[width=0.22\textwidth]{../../logo.png}\\[0.8cm]
+    \vspace{0.3cm}
+    {\large \LabelUniversity}\\[2pt]
+    {\large \LabelFaculty}
 
-    {\Large\bfseries \LabelUniversity}\\[2pt]
-    {\large \LabelFaculty}\\[1.2cm]
+    \vspace{2.5cm}
+    {\Huge\bfseries \LabelTitle}
 
-    {\color{gray!70}\rule{0.62\textwidth}{0.5pt}}\\[0.8cm]
+    \vspace{0.6cm}
+    {\LARGE \LabelCode{} --- \LabelCourse}
 
-    {\Huge\bfseries \LabelTitle}\\[0.55cm]
-    {\LARGE \LabelCode{} --- \LabelCourse}\\[0.35cm]
-    {\large \LabelAssignment}
-
-    \vfill
-
-    \setlength{\fboxsep}{12pt}
-    \fcolorbox{black!45}{gray!8}{%
-        \begin{minipage}{0.82\textwidth}
-            \begin{tabular}{@{}p{0.3\textwidth} p{0.64\textwidth}@{}}
-                \textbf{\LabelStudent:} & \StudentName \\[6pt]
-                \textbf{\LabelGroup:} & \StudyGroup \\[6pt]
-                \textbf{\LabelSession:} & \StudySession \\[6pt]
-                \textbf{\LabelYear:} & \AcademicYear \\[6pt]
-                \textbf{\LabelDate:} & \today
-            \end{tabular}
-        \end{minipage}%
-    }
+    \vspace{0.4cm}
+    {\Large \LabelAssignment}
 
     \vfill
-    {\color{gray!70}\rule{0.95\textwidth}{0.6pt}}
+
+    \begin{tabular}{r l}
+        \textbf{\LabelStudent:} & \StudentName  \\[4pt]
+        \textbf{\LabelGroup:}   & \StudyGroup   \\[4pt]
+        \textbf{\LabelSession:}      &
+        \StudySession \\[4pt]
+        \textbf{\LabelYear:}    & \AcademicYear \\[4pt]
+        \textbf{\LabelDate:}    & \today
+        
+        
+        \\
+    \end{tabular}
+
+    \vspace{1.5cm}
 \end{titlepage}
 
 % ─── Table of contents ───────────────────────────────────────────────────────
@@ -589,11 +585,7 @@ Tému letiskového systému sme si vybrali paradoxne preto, že ani jeden z nás
 
 \subsection{Zdroje}
 
-\begin{itemize}
-    \item Database Design Tutorial: \url{https://www.geeksforgeeks.org/database-design/}
-    \item Lucidchart --- ER Diagram Guide: \url{https://www.lucidchart.com/pages/er-diagrams}
-    \item PostgreSQL Documentation (PostgreSQL Global Development Group): \url{https://www.postgresql.org/docs/}
-\end{itemize}
+Zdroje budú doplnené po finalizácii zadania a overení doménových pravidiel.
 
 
 % \printbibliography
