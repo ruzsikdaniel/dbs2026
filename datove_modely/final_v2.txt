@@ -1,0 +1,163 @@
+Table airport {
+  id integer [primary key] 
+  name varchar
+  code varchar
+  city varchar
+  country varchar
+}
+
+Table passenger {
+  id integer [primary key]
+  firstname varchar
+  lastname varchar
+  email varchar
+  passport_number varchar // kvoli check-inu
+  nationality varchar
+}
+
+Table ticket {
+  id integer [primary key]
+  flight_id integer
+  passenger_id integer
+  price decimal
+  seat_id integer
+  booked_at timestamptz
+  checked_in_at timestamptz
+  ticket_status_id integer
+}
+
+Table ticket_status {
+  id integer [primary key]
+  status varchar
+}
+
+Table flight {
+  id integer [primary key]
+  runway_id integer
+  airplane_id integer
+  pilot_id integer
+  flight_number varchar //LH135 , WH 923 nemusi to tu byt 
+  departure_at timestamptz
+  arrival_at timestamptz
+  flight_status_id integer
+}
+
+Table flight_status {
+  id integer [primary key]
+  status varchar    // departed, landed, cancelled
+}
+
+Table airplane {
+  id integer [primary key]
+  airline varchar
+  model varchar
+  capacity integer
+  status varchar
+}
+
+Table baggage {
+  id integer [primary key]
+  ticket_id integer
+  weight float
+  baggage_status_id integer
+}
+
+Table baggage_status {
+  id integer [primary key]
+  status varchar    //lost, loaded,...
+}
+
+Table runway {
+  id integer [primary key]
+  airport_id integer
+  name varchar
+  status varchar
+}
+
+Table airplane_hangar {
+  airplane_id integer [primary key]
+  hangar_id integer [primary key]
+  arrived_at timestamptz
+  departed_at timestamptz // NULL => airplane still in hangar
+}
+
+Table hangar {
+  id integer [primary key]
+  airport_id integer
+  name varchar
+  capacity integer
+  status varchar
+}
+
+Table route {
+  id integer [primary key]
+  dest_airport_id integer
+  src_airport_id integer
+  flight_id integer
+}
+
+Table boarding {
+  id integer [primary key]
+  ticket_id integer
+  boarded_at timestamptz
+  boarding_status_id integer
+}
+
+Table boarding_status{
+  id integer [primary key]
+  status varchar
+}
+
+Table pilot {
+  id integer [primary key]
+  firstname varchar
+  lastname varchar
+  licence_number varchar
+}
+
+Table seat {
+  id integer [primary key]
+  seat_number varchar   // 12A
+  airplane_id integer
+}
+
+
+Ref: "flight"."pilot_id" > "pilot"."id"
+
+Ref: "baggage"."ticket_id" > "ticket"."id"
+
+Ref: "airplane_hangar"."airplane_id" > "airplane"."id"
+
+Ref: "airplane_hangar"."hangar_id" > "hangar"."id"
+
+Ref: "runway"."airport_id" > "airport"."id"
+
+Ref: "flight"."runway_id" > "runway"."id"
+
+Ref: "ticket"."flight_id" > "flight"."id"
+
+Ref: "hangar"."airport_id" > "airport"."id"
+
+Ref: "route"."flight_id" > "flight"."id"
+
+Ref: "route"."dest_airport_id" > "airport"."id"
+
+Ref: "route"."src_airport_id" > "airport"."id"
+
+Ref: "boarding"."ticket_id" > "ticket"."id"
+
+Ref: "flight"."airplane_id" > "airplane"."id"
+
+Ref: "seat"."airplane_id" < "airplane"."id"
+
+Ref: "passenger"."id" < "ticket"."passenger_id"
+
+Ref: "seat"."id" < "ticket"."seat_id"
+
+Ref: "ticket_status"."id" < "ticket"."ticket_status_id"
+
+Ref: "baggage_status"."id" < "baggage"."baggage_status_id"
+
+Ref: "flight_status"."id" < "flight"."flight_status_id"
+
+Ref: "boarding_status"."id" < "boarding"."boarding_status_id"

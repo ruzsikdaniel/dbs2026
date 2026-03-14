@@ -1,0 +1,105 @@
+Table airport {
+  id integer [primary key] 
+  name varchar
+  code varchar
+}
+
+Table passenger {
+  id integer [primary key]
+  firstname varchar
+  lastname varchar
+}
+
+Table ticket {
+  id integer [primary key]
+  flight_id integer
+  passenger_id integer
+  price float
+  seat_number integer
+
+}
+
+Table flight {
+  id integer [primary key]
+  runway_id integer
+  airplane_id integer
+  departure_time timestamp
+  arrival_time timestamp
+}
+
+Table airplane {
+  id integer [primary key]
+  airline varchar
+  status varchar
+}
+
+Table baggage {
+  id integer [primary key]
+  passenger_id integer
+  weight float
+}
+Table runway {
+  id integer [primary key]
+  airport_id integer
+  name varchar
+  status varchar
+}
+
+Table airplane_hangar {
+  airplane_id integer [primary key]
+  hangar_id integer [primary key]
+}
+
+Table hangar {
+  id integer [primary key]
+  airport_id integer
+  name varchar
+  capacity integer
+  status varchar
+}
+
+Table route {
+  id integer [primary key]
+  dest_airport_id integer
+  src_airport_id integer
+  flight_id integer
+}
+
+Table airplane_passenger {
+  id integer [primary key]
+  airport_id integer
+  passenger_id integer
+}
+
+
+Ref: "baggage"."passenger_id" > "passenger"."id"
+
+Ref: "ticket"."passenger_id" < "passenger"."id"
+
+Ref: "airplane_hangar"."airplane_id" > "airplane"."id"
+
+Ref: "airplane_hangar"."hangar_id" > "hangar"."id"
+
+Ref: "runway"."airport_id" > "airport"."id"
+
+Ref: "flight"."runway_id" > "runway"."id"
+
+Ref: "ticket"."flight_id" > "flight"."id"
+
+Ref: "hangar"."airport_id" > "airport"."id"
+
+Ref: "route"."flight_id" > "flight"."id"
+
+
+Ref: "route"."dest_airport_id" > "airport"."id"
+
+Ref: "route"."src_airport_id" > "airport"."id"
+
+
+
+Ref: "flight"."airplane_id" > "airplane"."id"
+
+
+Ref: "passenger"."id" > "airplane_passenger"."passenger_id"
+
+Ref: "airplane"."id" < "airplane_passenger"."airport_id"

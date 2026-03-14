@@ -52,7 +52,7 @@
 \begin{titlepage}
     \centering
 
-    \includegraphics[width=0.3\textwidth]{logo.png}
+    \includegraphics[width=0.3\textwidth]{assets/logo.png}
 
     \vspace{0.3cm}
     {\large \LabelUniversity}\\[2pt]
@@ -100,7 +100,7 @@
 \label{sec:specifikacia}
 
 Toto zadanie je zamerané na modelovanie prostredia letiska tak, aby databáza
-neodrážala len technické fungovanie infraštruktúry, ale predovšetkým reálnu
+neodrážala iba technické fungovanie infraštruktúry, ale predovšetkým reálnu
 skúsenosť cestujúceho počas celej cesty. Cieľom projektu nie je detailná
 simulácia interných letiskových technológií, ale návrh dátového modelu, ktorý
 umožní prehľadne sledovať cestujúceho od odchodu na letisko až po úspešný
@@ -247,7 +247,7 @@ lete. Jedno sedadlo môže byť obsadené len jedným cestujúcim. Toto pravidlo
 dá implementovať pomocou unikátneho obmedzenia napríklad na kombináciu:
 
 \begin{lstlisting}[language=SQL]
-UNIQUE (flight_id, seat_number)
+UNIQUE (flight_id, seat_id)
 \end{lstlisting}
 
 Ďalším pravidlom je, že zdrojové a cieľové letisko v trase letu nemôžu byť
@@ -273,12 +273,12 @@ po zmeny na dátovej vrstve.
 
 \subsection{Rezervácia letu a vystavenie letenky}
 
-\textbf{1. Stručný popis}
+\subsubsection*{Stručný popis}
 
 Scenár pokrýva proces, v ktorom cestujúci vyhľadá vhodný let, dokončí rezerváciu
 a systém mu vystaví letenku so sedadlom.
 
-\textbf{2. Hlavný tok (krok za krokom)}
+\subsubsection*{Hlavný tok (krok za krokom)}
 \begin{enumerate}
     \item Cestujúci zadá odletové a cieľové letisko, dátum a preferencie.
     \item Systém zobrazí dostupné lety.
@@ -289,12 +289,12 @@ a systém mu vystaví letenku so sedadlom.
     \item Cestujúci dostane potvrdenie rezervácie.
 \end{enumerate}
 
-\textbf{3. Čo sa deje na dátovej vrstve}
+\subsubsection*{Čo sa deje na dátovej vrstve}
 \begin{itemize}
     \item \textbf{Prehľadávané tabuľky:} \texttt{airport}, \texttt{route},
     \texttt{flight}, \texttt{airplane}, \texttt{ticket}, \texttt{passenger}.
-    \item \textbf{Čítanie dát:} systém vyhľadá lety podľa zdrojového/cieľového
-    letiska a dátumu, následne načíta kapacitu lietadla a už obsadené sedadlá.
+    \item \textbf{Čítanie dát:} systém vyhľadá lety podľa zdrojového/cieľového 
+    letiska (\texttt{route.dest\_airport\_id}, \texttt{route.scr\_airport\_id}) a dátumu (\texttt{flight.departure\_time, flight.arrival\_time}), následne načíta kapacitu  lietadla (\texttt{airplane.capacity}) a už obsadené sedadlá (\texttt{seat.id}).
     \item \textbf{Vznik nových entít:} po potvrdení rezervácie vzniká nový záznam
     \texttt{ticket} (väzba na \texttt{passenger} a \texttt{flight}).
     \item \textbf{Menené záznamy:} aktualizuje sa stav letenky (napr. rezervovaná,
@@ -302,18 +302,18 @@ a systém mu vystaví letenku so sedadlom.
     \item \textbf{Agregácie:} počíta sa počet predaných/rezervovaných sedadiel na
     daný let a porovnáva sa s kapacitou lietadla.
     \item \textbf{Kontroly:} unikátnosť sedadla v rámci letu
-    (\texttt{UNIQUE (flight\_id, seat\_number)}), nezáporná cena
+    (\texttt{UNIQUE (flight\_id, seat\_id)}), nezáporná cena
     (\texttt{CHECK (price >= 0)}), konzistencia väzieb cez cudzie kľúče.
 \end{itemize}
 
-\textbf{4. Alternatívne toky}
+\subsubsection*{Alternatívne toky}
 \begin{itemize}
     \item Let je vypredaný: systém ponúkne iný let alebo termín.
     \item Platba zlyhá: rezervácia sa nedokončí a letenka sa nevystaví.
     \item Sedadlo bolo medzičasom obsadené: systém vyžiada výber nového sedadla.
 \end{itemize}
 
-\textbf{5. Podporný UML diagram}
+\subsubsection*{Podporný UML diagram}
 
 \textbf{Sekvenčný diagram} je vhodný, pretože zachytáva komunikáciu medzi
 cestujúcim, rezervačným modulom, platobným modulom a databázou v presnom
@@ -321,21 +321,20 @@ cestujúcim, rezervačným modulom, platobným modulom a databázou v presnom
 
 \subsection{Zobrazenie trasy letu a cieľovej destinácie}
 
-\textbf{1. Stručný popis}
+\subsubsection*{Stručný popis}
 
 Scenár pokrýva situáciu, keď cestujúci alebo pracovník letiska potrebuje získať
 prehľad o trase letu, prestupoch a finálnej destinácii.
 
-\textbf{2. Hlavný tok (krok za krokom)}
+\subsubsection*{Hlavný tok (krok za krokom)}
 \begin{enumerate}
     \item Používateľ otvorí detail letu alebo letenky.
     \item Systém načíta údaje o trase letu.
     \item Systém zobrazí odletové a príletové letisko.
-    \item Systém vyhodnotí, či ide o priamy let alebo prestup.
     \item Používateľ vidí kompletný itinerár vrátane cieľovej destinácie.
 \end{enumerate}
 
-\textbf{3. Čo sa deje na dátovej vrstve}
+\subsubsection*{Čo sa deje na dátovej vrstve}
 \begin{itemize}
     \item \textbf{Prehľadávané tabuľky:} \texttt{ticket}, \texttt{flight},
     \texttt{route}, \texttt{airport}.
@@ -351,25 +350,25 @@ prehľad o trase letu, prestupoch a finálnej destinácii.
     existencia všetkých referencovaných letísk.
 \end{itemize}
 
-\textbf{4. Alternatívne toky}
+\subsubsection*{Alternatívne toky}
 \begin{itemize}
     \item Trasa nie je dostupná: systém zobrazí stav „trasa nie je definovaná".
     \item Let bol zmenený: systém zobrazí aktualizovanú trasu a upozornenie.
 \end{itemize}
 
-\textbf{5. Podporný UML diagram}
+\subsubsection*{Podporný UML diagram}
 
 \textbf{Diagram aktivít} je vhodný, pretože prehľadne zobrazuje vetvenie
-(piamy let vs. prestup) a rozhodovacie body pri skladaní itinerára.
+(priamy let vs. prestup) a rozhodovacie body pri skladaní itinerára.
 
 \subsection{Sledovanie aktuálneho stavu letu a lietadla}
 
-\textbf{1. Stručný popis}
+\subsubsection*{Stručný popis}
 
 Scenár pokrýva monitorovanie aktuálneho stavu letu a prevádzkového stavu
 priradeného lietadla (napr. hangár, runway, aktívny let).
 
-\textbf{2. Hlavný tok (krok za krokom)}
+\subsubsection*{Hlavný tok (krok za krokom)}
 \begin{enumerate}
     \item Používateľ vyberie let, ktorý chce sledovať.
     \item Systém načíta priradené lietadlo.
@@ -379,7 +378,7 @@ priradeného lietadla (napr. hangár, runway, aktívny let).
     \item Systém zobrazí konsolidovaný status letu aj lietadla.
 \end{enumerate}
 
-\textbf{3. Čo sa deje na dátovej vrstve}
+\subsubsection*{Čo sa deje na dátovej vrstve}
 \begin{itemize}
     \item \textbf{Prehľadávané tabuľky:} \texttt{flight}, \texttt{airplane},
     \texttt{runway}, \texttt{airplane\_hangar}, \texttt{hangar}, prípadne
@@ -397,7 +396,7 @@ priradeného lietadla (napr. hangár, runway, aktívny let).
     časovú čerstvosť dát.
 \end{itemize}
 
-\textbf{4. Alternatívne toky}
+\subsubsection*{Alternatívne toky}
 \begin{itemize}
     \item Lietadlo nie je priradené: systém vráti informáciu o chýbajúcom
     priradení.
@@ -405,28 +404,28 @@ priradeného lietadla (napr. hangár, runway, aktívny let).
     časovou značkou.
 \end{itemize}
 
-\textbf{5. Podporný UML diagram}
+\subsubsection*{Podporný UML diagram}
 
 \textbf{Sekvenčný diagram} je vhodný, pretože ukazuje postupné dopyty na viaceré
 prevádzkové entity a následné zlúčenie výsledkov do jedného statusu.
 
 \subsection{Odbavenie cestujúceho a evidovanie batožiny}
 
-\textbf{1. Stručný popis}
+\subsubsection*{Stručný popis}
 
 Scenár pokrýva check-in proces, v ktorom sa overí letenka cestujúceho, zaznamená
 sa odbavenie a eviduje sa odovzdaná batožina.
 
-\textbf{2. Hlavný tok (krok za krokom)}
+\subsubsection*{Hlavný tok (krok za krokom)}
 \begin{enumerate}
     \item Cestujúci sa identifikuje na check-ine.
     \item Systém overí platnosť letenky a priradenie k letu.
     \item Pracovník zaznamená batožinu a jej hmotnosť.
     \item Systém uloží záznam o batožine.
-    \item Systém nastaví stav cestujúceho na odbavený.
+    \item Systém nastaví stav letenky cestujúceho na odbavený (checked in).
 \end{enumerate}
 
-\textbf{3. Čo sa deje na dátovej vrstve}
+\subsubsection*{Čo sa deje na dátovej vrstve}
 \begin{itemize}
     \item \textbf{Prehľadávané tabuľky:} \texttt{passenger}, \texttt{ticket},
     \texttt{flight}, \texttt{baggage}.
@@ -442,42 +441,42 @@ sa odbavenie a eviduje sa odovzdaná batožina.
     dostupnosť letu pre check-in, prípadné doplatky pri nadlimitnej hmotnosti.
 \end{itemize}
 
-\textbf{4. Alternatívne toky}
+\subsubsection*{Alternatívne toky}
 \begin{itemize}
     \item Neplatná letenka: systém check-in zamietne.
     \item Nadlimitná batožina: systém vyžiada doplatok alebo úpravu batožiny.
     \item Let je uzavretý pre check-in: systém odbavenie neumožní.
 \end{itemize}
 
-\textbf{5. Podporný UML diagram}
+\subsubsection*{Podporný UML diagram}
 
 \textbf{Diagram aktivít} je vhodný, pretože obsahuje viacero rozhodnutí
 (validita letenky, hmotnosť batožiny, otvorenosť check-inu).
 
 \subsection{Boarding cestujúceho do lietadla}
 
-\textbf{1. Stručný popis}
+\subsubsection*{Stručný popis}
 
-Scenár pokrýva nástup cestujúceho do lietadla pri gate po úspešnom odbavení a
+Scenár pokrýva nástup cestujúceho do lietadla pri bráne po úspešnom odbavení a
 bezpečnostnej kontrole.
 
-\textbf{2. Hlavný tok (krok za krokom)}
+\subsubsection*{Hlavný tok (krok za krokom)}
 \begin{enumerate}
-    \item Cestujúci sa dostaví ku gate a predloží boarding pass.
+    \item Cestujúci sa dostaví k bráne a predloží boarding pass.
     \item Systém overí, že letenka patrí k správnemu letu a je v stave „checked-in".
     \item Systém overí, že boarding je pre daný let otvorený.
     \item Pracovník potvrdí nástup cestujúceho.
     \item Systém zaznamená cestujúceho ako „boarded".
 \end{enumerate}
 
-\textbf{3. Čo sa deje na dátovej vrstve}
+\subsubsection*{Čo sa deje na dátovej vrstve}
 \begin{itemize}
     \item \textbf{Prehľadávané tabuľky:} \texttt{ticket}, \texttt{flight},
     \texttt{passenger} a prípadne tabuľka udalostí nástupu (ak je vedená).
     \item \textbf{Čítanie dát:} systém overí stav letenky (checked-in), príslušnosť
     k letu a to, či je boarding pre let otvorený.
-    \item \textbf{Vznik nových entít:} voliteľne vzniká záznam o boarding udalosti
-    (čas skenu, gate, operátor).
+    \item \textbf{Vznik nových entít:} vzniká záznam o boarding udalosti
+    (čas skenu, stav).
     \item \textbf{Menené záznamy:} stav letenky sa mení na „boarded“, dopĺňa sa
     čas nástupu.
     \item \textbf{Agregácie:} počíta sa počet nastúpených cestujúcich a porovnanie
@@ -486,17 +485,17 @@ bezpečnostnej kontrole.
     časové okno boardingu, zhoda boarding passu s letom a cestujúcim.
 \end{itemize}
 
-\textbf{4. Alternatívne toky}
+\subsubsection*{Alternatívne toky}
 \begin{itemize}
     \item Boarding pass je neplatný alebo pre iný let: nástup sa zamietne.
     \item Cestujúci nie je odbavený: systém vráti cestujúceho na check-in.
-    \item Gate je uzavretý: nástup nie je povolený.
+    \item Brána je uzavretá: nástup nie je povolený.
 \end{itemize}
 
-\textbf{5. Podporný UML diagram}
+\subsubsection*{Podporný UML diagram}
 
 \textbf{Sekvenčný diagram} je vhodný, pretože presne zachytáva interakciu medzi
-pracovníkom gate, boarding systémom a databázou počas krátkej, ale kritickej
+pracovníkom brány, boarding systémom a databázou počas krátkej, ale kritickej
 operácie.
 
 \section{Návrh relačného modelu}
@@ -542,46 +541,55 @@ dráha, hangár) a navigačné informácie (trasa, prestup, destinácia).
 \subsection{Zhodnotenie}
 
 
-\textbf{Ktorá časť riešenia nám zabrala najviac času a prečo?}
+\subsubsection*{Ktorá časť riešenia nám zabrala najviac času a prečo?}
 
-Čo sa týka navrhu celkovej štruktúri zadanie, pretože najprv sme zvažovali celkový návrh z hladiska infraštruktúri letiska ale postupom času sme zmenili túto možnosť na návrh z pohľadu bežného cestujúceho teda od samotného príchodu na letisko až ku odletu, prestupmi letov a hľavne evidenciou jednotlivých pasažierov, lietadiel, pilotov, batožiny a iného. Jednoducho sme chceli mať prehľad na všetkým nie len sa pasažier check-inom a hotovo.Takže to je dôvod prečo nám to zobralo najviac času lebo sme to prerábali na iný návrh. 
+Čo sa týka návrhu celkovej štruktúry zadanie, pretože najprv sme zvažovali celkový návrh z hľadiska infraštruktúry letiska ale postupom času sme zmenili túto možnosť na návrh z pohľadu bežného cestujúceho teda od samotného príchodu na letisko až ku odletu, prestupmi letov a hlavne evidenciou jednotlivých pasažierov, lietadiel, pilotov, batožiny a iného. Jednoducho sme chceli mať prehľad na všetkým nie len sa pasažier check-inom a hotovo. Takže to je dôvod, prečo nám to zobralo najviac času, lebo sme to prerábali na iný návrh. 
 
-\textbf{S čím sme si nevedeli poradiť a ako sme to vyriešili?}
-Pri návrhu databázového modelu sme narazili na problém, ako reprezentovať cestu cestujúceho s prestupom. V reálnom systéme môže cestujúci absolvovať viac letov na jednej ceste, napríklad Bratislava → Frankfurt → New York. Najprv sme uvažovali o tom, že jeden ticket bude obsahovať viac letov. Tento prístup by však vyžadoval vytvorenie dodatočnej väzobnej tabuľky medzi ticket a flight.
+\subsubsection*{S čím sme si nevedeli poradiť a ako sme to vyriešili?}
 
-Nakoniec sme sa rozhodli pre jednoduchšie riešenie, kde jeden ticket reprezentuje jeden let. V prípade prestupu má cestujúci viac leteniek, pričom každá je priradená ku konkrétnemu letu. Tento prístup je jednoduchší na implementáciu a zároveň postačuje pre potreby nášho systému.
+\textbf{Prestupy pri ceste s viacerými letiskami}
 
-Nie je to vec,s ktorou by sme si nevedeli rady ale dúmali sme nad tým, či budeme chcieť mať prefektné real-life riešenie alebo si ulahčíme malinko prácu nakoľko už sme mali prekročený počet potrebných tabuliek na absolvovanie predmetu.
+Pri návrhu databázového modelu sme narazili na problém, ako reprezentovať cestu cestujúceho s prestupom. 
+V reálnom systéme môže cestujúci absolvovať viac letov na jednej ceste. Napríklad, ak cestujúci cestuje z Bratislavy do New Yorku, cesta môže vyzerať nasledovne:
+\begin{center}
+    Bratislava → Frankfurt → New York. \\
+\end{center} 
 
-\textbf{Čo bolo pre nás úplne nové?}
+Najprv sme uvažovali o použití jedného \texttt{ticket}-u na viac letov. Tento prístup by však vyžadoval vytvorenie dodatočnej väzobnej tabuľky medzi \texttt{ticket} a \texttt{flight}. Ďalšia možnosť by mohla byť rozšírenie tabuľky \texttt{route} redundantnými stĺpcami (zhodujúcimi so stĺpcami tabuľky \texttt{flight}).
 
-Oproti minulým rokom sa nám pačilo prepojenie návrhu aj s potrebnými USE CASE-ami, pretože sme si vedeli náš návrh skontrolovať pri reálnom produkčnom chode takéhoto navrhovaného systému. 
+Nakoniec sme sa rozhodli pre jednoduchšie riešenie, ktoré používa \textbf{jeden ticket} na reprezentovanie \textbf{iba jedenéhu letu}. V prípade prestupu cestujúci nakúpi viac leteniek, pričom každá je priradená ku konkrétnemu letu. Našli sme, že tento prístup bude jednoduchší na implementáciu a zároveň postačuje pre potreby nášho systému.
 
-\textbf{Pokrýva naše riešenie správne zvolenú tému? Čo sme zjednodušili alebo vynechali?}
+Nie je to vec, s ktorou by sme si nevedeli rady, ale dumali sme nad tým, či chceme mať perfektne simulované "real-life" riešenie letiska, alebo si trochu uľahčíme prácu, nakoľko už máme dostatočný počet potrebných tabuliek na absolvovanie zadania.
+
+\subsubsection*{Čo bolo pre nás úplne nové?}
+
+Oproti minulým rokom sa nám páčilo prepojenie návrhu aj s potrebnými prípadmi použitia, pretože sme si vedeli náš návrh skontrolovať pri reálnom produkčnom chode takéhoto navrhovaného systému. 
+
+\subsubsection*{Pokrýva naše riešenie správne zvolenú tému? Čo sme zjednodušili alebo vynechali?}
 
 Riešenie pokrýva zvolenú tému správne, pretože zahŕňa kľúčové procesy
 cestujúceho od rezervácie až po nástup do lietadla a zároveň modeluje
 prevádzkové súvislosti letu. 
-Zjednodušenie nastalo už v spomínanom odstránení / vynechaní tabuľky JOURNEY, ktorá by bola z dôvodu lepšej evidencí prechodov pri jednotlivých letov. Z hľadiska, že ide o školský projekt a prekročný počet tabuliek sme túto možnosť zamietli.
+Zjednodušenie nastalo už v spomínanom odstránení, alebo vynechaní tabuľky \texttt{JOURNEY}, ktorá bola vykonaná z dôvodu lepšej evidencie prechodov pri jednotlivých letoch. Z hľadiska komplexnosti riešenia a dosiahnutia potrebného počtu zmysluplných tabuliek sme túto možnosť zamietli.
 
-\textbf{Aký bol náš pracovný proces? Postupovali sme iteratívne?}
+\subsubsection*{Aký bol náš pracovný proces? Postupovali sme iteratívne?}
 
-Najprv sme definovali doménu a entity, následne
-sme vytvorili prvú verziu väzieb a pravidiel, potom sme ju opakovane
-upravovali podľa používateľských scenárov. Po každej iterácii sme kontrolovali,
-či návrh stále podporuje všetky kľúčové operácie systému bez porušenia
-konzistencie dát.
+Ako prvé, sme si zadefinovali doménu systému a kľúčové entity. 
+Tým sme si vybudovali svet, v rámci čoho bude naše riešenie existovať.
 
-\textbf{Použili sme AI nástroje? Ak áno – na čo presne, aký bol výstup a ako sme ho upravovali?}
+Následne sme vytvorili prvú verziu väzieb a pravidiel, ktoré sme neskôr postupne upravovali na základe používateľských scenárov. 
+Po každej iterácii sme kontrolovali, či návrh stále podporuje všetky kľúčové operácie systému bez porušenia konzistencia dát.
+
+\subsubsection*{Použili sme AI nástroje? Ak áno – na čo presne, aký bol výstup a ako sme ho upravovali?}
 
 Áno, AI nástroje sme použili ako podporný prostriedok na štruktúrovanie textu,
-spresnenie formulácií a návrh alternatívnych verzií popisov use-case scenárov. Takisto aj na kontrolu správnosti modelu,ktorý sme sami navrhli, aby sme predišli problémom, ktoré mohli nastať v neskoršej časti zadania. Výstupy sme vždy manuálne kontrolovali, upravovali podľa zadania a
+spresnenie formulácií a návrh alternatívnych verzií popisov use-case scenárov. Takisto aj na kontrolu správnosti modelu, ktorý sme sami navrhli, aby sme predišli problémom, ktoré mohli nastať v neskoršej časti zadania. Výstupy sme vždy manuálne kontrolovali, upravovali podľa zadania a
 prispôsobovali konkrétnemu dátovému modelu, aby výsledný text zodpovedal
 reálnemu návrhu a neobsahoval všeobecné alebo nepresné tvrdenia.
 
-\textbf{Prečo sme si vybrali túto rámcovú tému?}
+\subsubsection*{Prečo sme si vybrali túto rámcovú tému?}
 
-Tému letiskového systému sme si vybrali paradoxne preto, že ani jeden z nás nikdy neletel lietadlom tak chceli sme mať prehľad ako fungujú letiská a procesy pri nástupe do lietadlá. 
+Tému letiskového systému sme si vybrali paradoxne preto, lebo ani jeden z nás nikdy neletel lietadlom. Chceli sme mať lepší prehľad o tom, ako fungujú letiská a procesy pri nástupe do lietadla. 
 
 \subsection{Zdroje}
 
@@ -589,7 +597,6 @@ Zdroje budú doplnené po finalizácii zadania a overení doménových pravidiel
 
 
 % \printbibliography
-
 
 
 
