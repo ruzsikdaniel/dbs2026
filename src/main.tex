@@ -704,76 +704,93 @@ PDF a zároveň je dostupný ako samostatný obrázok vo formáte JPG.
 
 \subsection{Popis vzťahov medzi tabuľkami}
 
-Väčšina vzťahov v tomto modeli je typu 1:N a na fyzickej úrovni je realizovaná cudzím kľúčom v
-podradenej tabuľke. Jediný vzťah typu M:N je medzi \texttt{airplane} a \texttt{hangar}, ktorý je
-realizovaný cez väzobnú tabuľku \texttt{airplane\_hangar}.
+Väčšina vzťahov v tomto modeli je typu 1:N a na fyzickej úrovni je
+realizovaná cudzím kľúčom v podradenej tabuľke. Jediný vzťah typu M:N je
+medzi \texttt{airplane} a \texttt{hangar}, ktorý je realizovaný cez väzobnú
+tabuľku \texttt{airplane\_hangar}.
 
-Medzi \texttt{passenger} a \texttt{ticket} je vzťah 1:N. Jeden pasažier môže mať viac leteniek, ale
-každá letenka patrí práve jednému pasažierovi. Tento vzťah je realizovaný cez
-\texttt{ticket.passenger\_id}.
+\subsubsection*{Vzťah medzi \texttt{passenger} a \texttt{ticket} (1:N)}
+Jeden pasažier môže mať viac leteniek, ale každá letenka patrí práve jednému
+pasažierovi. Tento vzťah je realizovaný cez \texttt{ticket.passenger\_id}.
 
-Medzi \texttt{flight} a \texttt{ticket} je taktiež vzťah 1:N. Jeden let môže mať viac leteniek,
-pričom každá letenka patrí jednému letu. Realizácia je cez \texttt{ticket.flight\_id}.
+\subsubsection*{Vzťah medzi \texttt{flight} a \texttt{ticket} (1:N)}
+Jeden let môže mať viac leteniek, pričom každá letenka patrí jednému letu.
+Realizácia je cez \texttt{ticket.flight\_id}.
 
-Medzi \texttt{seat} a \texttt{ticket} je podľa diagramu vzťah 1:N. Jedno sedadlo môže byť použité vo
-viacerých letenkách v čase, ale každá letenka odkazuje na jedno sedadlo. Tento vzťah je realizovaný
-cez \texttt{ticket.seat\_id}.
+\subsubsection*{Vzťah medzi \texttt{seat} a \texttt{ticket} (1:N)}
+Podľa diagramu môže byť jedno sedadlo použité vo viacerých letenkách v čase,
+ale každá letenka odkazuje na jedno sedadlo. Tento vzťah je realizovaný cez
+\texttt{ticket.seat\_id}.
 
-Medzi \texttt{ticket\_status} a \texttt{ticket} je vzťah 1:N. Jeden stav môže patriť viacerým
-letenkám, ale každá letenka má práve jeden stav. Vzťah je realizovaný cez
-\texttt{ticket.ticket\_status\_id}.
+\subsubsection*{Vzťah medzi \texttt{ticket\_status} a \texttt{ticket} (1:N)}
+Jeden stav môže patriť viacerým letenkám, ale každá letenka má práve jeden
+stav. Vzťah je realizovaný cez \texttt{ticket.ticket\_status\_id}.
 
-Medzi \texttt{ticket} a \texttt{baggage} je vzťah 1:N. Jedna letenka môže mať viac kusov batožiny,
-ale každý kus batožiny patrí jednej letenke. Realizácia je cez \texttt{baggage.ticket\_id}.
+\subsubsection*{Vzťah medzi \texttt{ticket} a \texttt{baggage} (1:N)}
+Jedna letenka môže mať viac kusov batožiny, ale každý kus batožiny patrí jednej
+letenke. Realizácia je cez \texttt{baggage.ticket\_id}.
 
-Medzi \texttt{baggage\_status} a \texttt{baggage} je vzťah 1:N. Jeden stav batožiny môže byť
-priradený viacerým kusom batožiny, pričom každý kus batožiny má jeden stav. Realizácia je cez
+\subsubsection*{Vzťah medzi \texttt{baggage\_status} a \texttt{baggage} (1:N)}
+Jeden stav batožiny môže byť priradený viacerým kusom batožiny, pričom každý
+kus batožiny má jeden stav. Realizácia je cez
 \texttt{baggage.baggage\_status\_id}.
 
-Medzi \texttt{ticket} a \texttt{boarding} je podľa diagramu vzťah 1:N. To znamená, že jedna letenka
-môže mať viac boarding záznamov a každý boarding záznam patrí jednej letenke. Tento vzťah je
-realizovaný cez \texttt{boarding.ticket\_id}. Z vecného hľadiska by sa možno očakával skôr jeden
-boarding záznam na jednu letenku, ale diagram to takto striktne neobmedzuje.
+\subsubsection*{Vzťah medzi \texttt{ticket} a \texttt{boarding} (1:N)}
+Podľa diagramu môže mať jedna letenka viac boarding záznamov a každý boarding
+záznam patrí jednej letenke. Tento vzťah je realizovaný cez
+\texttt{boarding.ticket\_id}. Z vecného hľadiska by sa možno očakával skôr
+jeden boarding záznam na jednu letenku, ale diagram to takto striktne
+neobmedzuje.
 
-Medzi \texttt{boarding\_status} a \texttt{boarding} je vzťah 1:N. Jeden stav boardingu môže patriť
-viacerým boarding záznamom, ale každý boarding záznam má práve jeden stav. Realizácia je cez
+\subsubsection*{Vzťah medzi \texttt{boarding\_status} a \texttt{boarding} (1:N)}
+Jeden stav boardingu môže patriť viacerým boarding záznamom, ale každý boarding
+záznam má práve jeden stav. Realizácia je cez
 \texttt{boarding.boarding\_status\_id}.
 
-Medzi \texttt{airport} a \texttt{runway} je vzťah 1:N. Jedno letisko môže mať viac dráh, ale každá
-dráha patrí jednému letisku. Realizácia je cez \texttt{runway.airport\_id}.
+\subsubsection*{Vzťah medzi \texttt{airport} a \texttt{runway} (1:N)}
+Jedno letisko môže mať viac dráh, ale každá dráha patrí jednému letisku.
+Realizácia je cez \texttt{runway.airport\_id}.
 
-Medzi \texttt{runway} a \texttt{flight} je vzťah 1:N. Jedna dráha môže byť použitá pre viac letov,
-ale každý let má pridelenú jednu dráhu. Realizácia je cez \texttt{flight.runway\_id}.
+\subsubsection*{Vzťah medzi \texttt{runway} a \texttt{flight} (1:N)}
+Jedna dráha môže byť použitá pre viac letov, ale každý let má pridelenú jednu
+dráhu. Realizácia je cez \texttt{flight.runway\_id}.
 
-Medzi \texttt{airplane} a \texttt{flight} je vzťah 1:N. Jedno lietadlo môže vykonať viac letov, ale
-každý let má pridelené jedno lietadlo. Realizácia je cez \texttt{flight.airplane\_id}.
+\subsubsection*{Vzťah medzi \texttt{airplane} a \texttt{flight} (1:N)}
+Jedno lietadlo môže vykonať viac letov, ale každý let má pridelené jedno
+lietadlo. Realizácia je cez \texttt{flight.airplane\_id}.
 
-Medzi \texttt{pilot} a \texttt{flight} je vzťah 1:N. Jeden pilot môže pilotovať viac letov, ale
-každý let má jedného pilota. Realizácia je cez \texttt{flight.pilot\_id}.
+\subsubsection*{Vzťah medzi \texttt{pilot} a \texttt{flight} (1:N)}
+Jeden pilot môže pilotovať viac letov, ale každý let má jedného pilota.
+Realizácia je cez \texttt{flight.pilot\_id}.
 
-Medzi \texttt{flight\_status} a \texttt{flight} je vzťah 1:N. Jeden stav letu môže byť priradený
-viacerým letom, ale každý let má presne jeden stav. Realizácia je cez
-\texttt{flight.flight\_status\_id}.
+\subsubsection*{Vzťah medzi \texttt{flight\_status} a \texttt{flight} (1:N)}
+Jeden stav letu môže byť priradený viacerým letom, ale každý let má presne
+jeden stav. Realizácia je cez \texttt{flight.flight\_status\_id}.
 
-Medzi \texttt{airport} a \texttt{hangar} je vzťah 1:N. Jedno letisko môže mať viac hangárov, ale
-každý hangár patrí jednému letisku. Realizácia je cez \texttt{hangar.airport\_id}.
+\subsubsection*{Vzťah medzi \texttt{airport} a \texttt{hangar} (1:N)}
+Jedno letisko môže mať viac hangárov, ale každý hangár patrí jednému letisku.
+Realizácia je cez \texttt{hangar.airport\_id}.
 
-Medzi \texttt{airplane} a \texttt{seat} je vzťah 1:N. Jedno lietadlo má viac sedadiel, ale každé
-sedadlo patrí jednému lietadlu. Realizácia je cez \texttt{seat.airplane\_id}.
+\subsubsection*{Vzťah medzi \texttt{airplane} a \texttt{seat} (1:N)}
+Jedno lietadlo má viac sedadiel, ale každé sedadlo patrí jednému lietadlu.
+Realizácia je cez \texttt{seat.airplane\_id}.
 
-Medzi \texttt{flight} a \texttt{route} je podľa diagramu vzťah 1:N. To znamená, že jeden let môže
-mať viac trás a každá trasa patrí jednému letu. Je to trochu netypické, pretože bežne by sa
-očakávalo, že let má práve jednu trasu. Na fyzickej úrovni je vzťah realizovaný cez
-\texttt{route.flight\_id}.
+\subsubsection*{Vzťah medzi \texttt{flight} a \texttt{route} (1:N)}
+Podľa diagramu môže mať jeden let viac trás a každá trasa patrí jednému letu.
+Je to trochu netypické, pretože bežne by sa očakávalo, že let má práve jednu
+trasu. Na fyzickej úrovni je vzťah realizovaný cez \texttt{route.flight\_id}.
 
-Medzi \texttt{airport} a \texttt{route} existujú vlastne dva samostatné vzťahy 1:N. Jeden v role
-zdrojového letiska cez \texttt{route.src\_airport\_id} a druhý v role cieľového letiska cez
+\subsubsection*{Vzťah medzi \texttt{airport} a \texttt{route} (1:N v dvoch roliach)}
+Existujú dva samostatné vzťahy 1:N: jeden v role zdrojového letiska cez
+\texttt{route.src\_airport\_id} a druhý v role cieľového letiska cez
 \texttt{route.dest\_airport\_id}.
 
-Medzi \texttt{airplane} a \texttt{hangar} je vzťah M:N, ktorý je realizovaný cez tabuľku
-\texttt{airplane\_hangar}. Jedno lietadlo môže byť v rôznych hangároch a jeden hangár môže obsahovať
-rôzne lietadlá. Navyše táto väzobná tabuľka uchováva aj vlastné atribúty \texttt{arrived\_at} a
-\texttt{departed\_at}, takže ide o typickú väzbu s vlastnými údajmi.
+\subsubsection*{Vzťah medzi \texttt{airplane} a \texttt{hangar} (M:N)}
+Vzťah M:N je realizovaný cez tabuľku \texttt{airplane\_hangar}. Jedno lietadlo
+môže byť v rôznych hangároch a jeden hangár môže obsahovať rôzne lietadlá.
+Navyše táto väzobná tabuľka uchováva aj vlastné atribúty
+\texttt{arrived\_at} a \texttt{departed\_at}, takže ide o typickú väzbu s
+vlastnými údajmi.
 
 \subsection{Kardinalita, povinnosť a správanie pri mazaní}
 
