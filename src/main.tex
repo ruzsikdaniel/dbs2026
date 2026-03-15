@@ -278,7 +278,7 @@ po zmeny na dátovej vrstve.
 Scenár pokrýva proces, v ktorom cestujúci vyhľadá vhodný let, dokončí rezerváciu
 a systém mu vystaví letenku so sedadlom.
 
-\subsubsection*{Hlavný tok (krok za krokom)}
+\subsubsection*{Hlavný tok}
 \begin{enumerate}
     \item Cestujúci zadá odletové a cieľové letisko, dátum a preferencie.
     \item Systém zobrazí dostupné lety.
@@ -293,26 +293,18 @@ a systém mu vystaví letenku so sedadlom.
 
 \subsubsection*{Čo sa deje na dátovej vrstve}
 \begin{itemize}
-    \item \textbf{Prehľadávané tabuľky:} \texttt{airport}, \texttt{route},
-    \texttt{flight}, \texttt{airplane}, \texttt{ticket}, \texttt{passenger}.
-    \item \textbf{Čítanie dát:} systém vyhľadá lety podľa zdrojového/cieľového 
-    letiska (\texttt{route.dest\_airport\_id}, \texttt{route.scr\_airport\_id}) a dátumu (\texttt{flight.departure\_time, flight.arrival\_time}), následne načíta kapacitu  lietadla (\texttt{airplane.capacity}) a už obsadené sedadlá (\texttt{seat.id}).
-    \item \textbf{Vznik nových entít:} po potvrdení rezervácie vzniká nový záznam
-    \texttt{ticket} (väzba na \texttt{passenger} a \texttt{flight}).
-    \item \textbf{Menené záznamy:} aktualizuje sa stav letenky (napr. rezervovaná,
-    zaplatená) a čas vytvorenia rezervácie.
-    \item \textbf{Agregácie:} počíta sa počet predaných/rezervovaných sedadiel na
-    daný let a porovnáva sa s kapacitou lietadla.
-    \item \textbf{Kontroly:} unikátnosť sedadla v rámci letu
-    (\texttt{UNIQUE (flight\_id, seat\_id)}), nezáporná cena
-    (\texttt{CHECK (price >= 0)}), konzistencia väzieb cez cudzie kľúče.
+    \item \textbf{Aké tabuľky sa prehľadávajú:} systém najskôr pracuje s tabuľkami \texttt{airport}, \texttt{route} a \texttt{flight}, aby našiel vhodné spojenia podľa odletu, cieľa a času. Následne sa číta \texttt{airplane} kvôli kapacite a \texttt{ticket} kvôli už obsadeným sedadlám. V kroku potvrdenia sa používa aj \texttt{passenger}, aby sa nová rezervácia korektne naviazala na konkrétneho cestujúceho.
+    \item \textbf{Aké entity vznikajú:} po úspešnom potvrdení rezervácie vzniká nová doménová entita letenky, teda nový záznam v \texttt{ticket}. Tento záznam reprezentuje výsledok celého procesu rezervácie a obsahuje väzbu na let aj cestujúceho. Podľa implementácie môže popri tom vzniknúť aj technický záznam do auditnej tabuľky (napríklad kto, kedy a pre aký let vytvoril rezerváciu).
+    \item \textbf{Aké agregácie sa vykonávajú:} systém priebežne počíta, koľko miest je už predaných alebo rezervovaných pre konkrétny let, a tento počet porovnáva s kapacitou lietadla. Zároveň môže dopočítať počet voľných miest, ktorý sa zobrazuje používateľovi pri výbere sedadla. Tieto agregácie sú dôležité, aby sa zabránilo prebookovaniu a aby používateľ videl len reálne dostupné možnosti.
+    \item \textbf{Aké záznamy sa menia:} mení sa najmä stav novej letenky (napr. rezervovaná, zaplatená), priradenie sedadla, čas vytvorenia rezervácie a prípadne ďalšie atribúty súvisiace s platbou. Ak je systém navrhnutý s dočasnou rezerváciou pred platbou, môže sa počas procesu meniť aj interný stav tej istej letenky pred jej finálnym potvrdením.
+    \item \textbf{Kontroly konzistencie:} overuje sa, že vybrané sedadlo je stále voľné pre daný let a že rezervácia spĺňa integritné pravidlá. Kľúčová je kontrola \texttt{UNIQUE (flight\_id, seat\_id)} a tiež validácia cien cez \texttt{CHECK (price >= 0)}. Rovnako sa kontrolujú cudzie kľúče, aby \texttt{ticket} vždy odkazoval na existujúci \texttt{passenger} a existujúci \texttt{flight}.
 \end{itemize}
 
 \subsubsection*{Alternatívne toky}
 \begin{itemize}
-    \item Let je vypredaný: systém ponúkne iný let alebo termín.
-    \item Platba zlyhá: rezervácia sa nedokončí a letenka sa nevystaví.
-    \item Sedadlo bolo medzičasom obsadené: systém vyžiada výber nového sedadla.
+    \item \textbf{Ak nie je splnená podmienka voľných miest:} let je vypredaný, systém neuloží rezerváciu a ponúkne iný let alebo termín.
+    \item \textbf{Ak nie je splnená podmienka dostupnosti sedadla:} sedadlo bolo medzičasom obsadené, systém vráti používateľa na výber sedadla.
+    \item \textbf{Ak nie je splnená podmienka úspešnej platby:} platba zlyhá, záznam letenky sa nevytvorí alebo zostane v neaktívnom stave a rezervácia sa nedokončí.
 \end{itemize}
 
 \subsubsection*{Podporný UML diagram}
@@ -321,6 +313,16 @@ a systém mu vystaví letenku so sedadlom.
 cestujúcim, rezervačným modulom, platobným modulom a databázou v presnom
 časovom poradí.
 
+\IfFileExists{assets/UC1.jpg}{%
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{assets/UC1.jpg}
+    \caption{Podporný UML diagram pre UC1}
+\end{figure}
+}{%
+\textit{Obrázok assets/UC1.jpg nebol nájdený.}
+}
+
 \subsection{UC2 - Zobrazenie trasy letu a cieľovej destinácie}
 
 \subsubsection*{Stručný popis}
@@ -328,7 +330,7 @@ cestujúcim, rezervačným modulom, platobným modulom a databázou v presnom
 Scenár pokrýva situáciu, keď cestujúci alebo pracovník letiska potrebuje získať
 prehľad o trase letu, prestupoch a finálnej destinácii.
 
-\subsubsection*{Hlavný tok (krok za krokom)}
+\subsubsection*{Hlavný tok}
 \begin{enumerate}
     \item Pracovník otvorí detail letu alebo letenky.
     \item Systém načíta údaje o trase letu.
@@ -338,18 +340,11 @@ prehľad o trase letu, prestupoch a finálnej destinácii.
 
 \subsubsection*{Čo sa deje na dátovej vrstve}
 \begin{itemize}
-    \item \textbf{Prehľadávané tabuľky:} \texttt{ticket}, \texttt{flight},
-    \texttt{route}, \texttt{airport}.
-    \item \textbf{Čítanie dát:} podľa letenky sa načíta priradený let, k nemu trasa
-    a následne názvy/kódy zdrojového a cieľového letiska.
-    \item \textbf{Vznik nových entít:} v tomto scenári zvyčajne nevznikajú nové
-    záznamy, ide primárne o čítanie a skladanie údajov.
-    \item \textbf{Menené záznamy:} voliteľne sa môže zapisovať auditný záznam o
-    zobrazení detailu letu (ak je audit zapnutý).
-    \item \textbf{Agregácie:} pri prestupoch sa zostaví agregovaný itinerár z
-    viacerých segmentov (poradie úsekov, celkový čas cesty, počet prestupov).
-    \item \textbf{Kontroly:} časová nadväznosť segmentov, konzistentnosť trás,
-    existencia všetkých referencovaných letísk.
+    \item \textbf{Aké tabuľky sa prehľadávajú:} hlavným vstupom je \texttt{ticket} alebo identifikátor letu, odkiaľ sa pokračuje na \texttt{flight}. Na základe letu sa číta \texttt{route}, ktorá určuje zdrojové a cieľové letisko, a následne sa z \texttt{airport} načítajú názvy, kódy a ďalšie detaily letísk pre zobrazenie používateľovi.
+    \item \textbf{Aké entity vznikajú:} v štandardnom priebehu nevzniká nová biznis entita, pretože ide o čítací scenár. Systém však môže vytvoriť technický záznam o tom, že bol detail itinerára zobrazený (audit, log prístupov, telemetry event), čo pomáha pri diagnostike alebo bezpečnostnom dohľade.
+    \item \textbf{Aké agregácie sa vykonávajú:} ak trasa obsahuje viac segmentov, systém ich zoradí do správneho poradia a vypočíta súhrnné údaje, napríklad počet prestupov alebo celkovú dĺžku cesty. Pri priamom lete je agregácia jednoduchšia, no logika zostáva rovnaká: pripraviť konzistentný výstup pre UI v jednom prehľade.
+    \item \textbf{Aké záznamy sa menia:} doménové tabuľky ako \texttt{ticket}, \texttt{flight}, \texttt{route} a \texttt{airport} sa nemenia, keďže scenár je read-only. Ak je zapnutý audit, mení sa iba technická vrstva logovania (nový záznam o zobrazení alebo aktualizácia počítadla prístupov).
+    \item \textbf{Kontroly konzistencie:} systém overuje, že väzby \texttt{ticket -> flight -> route} existujú a že všetky referencované letiská sú v tabuľke \texttt{airport}. Pri viacsegmentovej trase sa navyše kontroluje časová a logická nadväznosť úsekov, aby nevznikol chybný itinerár s nelogickým poradím alebo rozpadnutými väzbami.
 \end{itemize}
 
 \subsubsection*{Alternatívne toky}
@@ -361,6 +356,16 @@ prehľad o trase letu, prestupoch a finálnej destinácii.
 
 \textbf{Diagram aktivít} je vhodný, pretože prehľadne zobrazuje vetvenie
 (priamy let vs. prestup) a rozhodovacie body pri skladaní itinerára.
+
+\IfFileExists{assets/UC2.jpg}{%
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{assets/UC2.jpg}
+    \caption{Podporný UML diagram pre UC2}
+\end{figure}
+}{%
+\textit{Obrázok assets/UC2.jpg nebol nájdený.}
+}
 
 \subsection{UC3 - Sledovanie aktuálneho stavu letu a lietadla}
 
@@ -381,20 +386,11 @@ priradeného lietadla (napr. hangár, runway, aktívny let).
 
 \subsubsection*{Čo sa deje na dátovej vrstve}
 \begin{itemize}
-    \item \textbf{Prehľadávané tabuľky:} \texttt{flight}, \texttt{airplane},
-    \texttt{runway}, \texttt{airplane\_hangar}, \texttt{hangar}, prípadne
-    tabuľka stavových udalostí letu (ak je implementovaná).
-    \item \textbf{Čítanie dát:} systém načíta stav letu, priradené lietadlo,
-    runway a informáciu, či je lietadlo evidované v hangári.
-    \item \textbf{Vznik nových entít:} spravidla nevznikajú nové doménové entity,
-    môže sa však ukladať technický záznam o monitorovaní.
-    \item \textbf{Menené záznamy:} pri príchode nových telemetrických/prevádzkových
-    dát sa mení aktuálny status letu alebo status lietadla.
-    \item \textbf{Agregácie:} skladá sa jednotný „live status“ z viacerých zdrojov
-    (stav letu + poloha lietadla + stav runway/hangára).
-    \item \textbf{Kontroly:} systém overuje stavové konflikty (napr. lietadlo
-    nemôže byť súčasne v hangári aj v aktívnom odlete), platnosť väzieb a
-    časovú čerstvosť dát.
+    \item \textbf{Aké tabuľky sa prehľadávajú:} jadrom scenára sú \texttt{flight} a \texttt{airplane}, ktoré určujú, aký let sa sleduje a aké lietadlo je k nemu aktuálne priradené. Doplňujúco sa čítajú \texttt{runway}, \texttt{airplane\_hangar} a \texttt{hangar}, aby bolo možné určiť prevádzkový kontext lietadla. Ak je dostupná tabuľka stavových udalostí, systém z nej berie najnovšie zmeny statusu.
+    \item \textbf{Aké entity vznikajú:} vo väčšine prípadov nevznikajú nové doménové entity, pretože ide o monitorovací scenár. Môže však vzniknúť technický záznam monitorovania, napríklad snapshot aktuálneho stavu alebo záznam o tom, že operátor otvoril živý status konkrétneho letu.
+    \item \textbf{Aké agregácie sa vykonávajú:} systém agreguje viacero informačných zdrojov do jedného výsledného „live statusu“ — kombinuje stav letu, stav lietadla a jeho umiestnenie v infraštruktúre. Prakticky ide o zostavenie jednotného prevádzkového pohľadu, ktorý je použiteľný pre dispečing aj informačné panely.
+    \item \textbf{Aké záznamy sa menia:} pri príchode nových prevádzkových dát sa aktualizujú stavy v \texttt{flight} a/alebo \texttt{airplane}, prípadne sa pridáva nový stavový event. Zmeny sú typicky časovo citlivé, preto je dôležité udržiavať posledný známy validný status a jeho časovú značku.
+    \item \textbf{Kontroly konzistencie:} kontroluje sa, že väzby medzi letom, lietadlom a infraštruktúrou sú platné a že status nie je v rozpore s fyzickým stavom (napr. lietadlo nemôže byť súčasne v hangári aj v aktívnom odlete). Zároveň sa overuje čerstvosť údajov, aby sa neprezentovali zastarané informácie ako aktuálny stav.
 \end{itemize}
 
 \subsubsection*{Alternatívne toky}
@@ -409,6 +405,16 @@ priradeného lietadla (napr. hangár, runway, aktívny let).
 
 \textbf{Sekvenčný diagram} je vhodný, pretože ukazuje postupné dopyty na viaceré
 prevádzkové entity a následné zlúčenie výsledkov do jedného statusu.
+
+\IfFileExists{assets/UC3.jpg}{%
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{assets/UC3.jpg}
+    \caption{Podporný UML diagram pre UC3}
+\end{figure}
+}{%
+\textit{Obrázok assets/UC3.jpg nebol nájdený.}
+}
 
 \subsection{UC4 - Odbavenie cestujúceho a evidovanie batožiny}
 
@@ -428,18 +434,11 @@ sa odbavenie a eviduje sa odovzdaná batožina.
 
 \subsubsection*{Čo sa deje na dátovej vrstve}
 \begin{itemize}
-    \item \textbf{Prehľadávané tabuľky:} \texttt{passenger}, \texttt{ticket},
-    \texttt{flight}, \texttt{baggage}.
-    \item \textbf{Čítanie dát:} systém overí, že letenka patrí cestujúcemu,
-    že let existuje a je otvorený pre check-in.
-    \item \textbf{Vznik nových entít:} vzniká záznam \texttt{baggage} (alebo viac
-    záznamov pri viacerých kusoch batožiny) naviazaný na letenku/cestujúceho.
-    \item \textbf{Menené záznamy:} mení sa stav letenky na „checked-in“ a prípadne
-    sa doplní čas odbavenia a identifikátor pracovníka.
-    \item \textbf{Agregácie:} počíta sa celková hmotnosť batožiny na cestujúceho,
-    prípadne porovnanie so zahrnutým limitom.
-    \item \textbf{Kontroly:} \texttt{CHECK (weight > 0)}, validita letenky,
-    dostupnosť letu pre check-in, prípadné doplatky pri nadlimitnej hmotnosti.
+    \item \textbf{Aké tabuľky sa prehľadávajú:} systém číta \texttt{passenger} a \texttt{ticket}, aby overil identitu a platnosť letenky, následne \texttt{flight}, aby zistil, či je check-in pre daný let otvorený. Pri evidencii batožiny sa používa \texttt{baggage}, kde sa kontrolujú existujúce kusy a pripravuje zápis nových údajov.
+    \item \textbf{Aké entity vznikajú:} pri úspešnom odbavení vzniká jeden alebo viac nových záznamov v \texttt{baggage}, podľa počtu odovzdaných kusov batožiny. Tieto entity sú naviazané na letenku/cestujúceho a predstavujú oficiálnu evidenciu batožiny pre konkrétny let.
+    \item \textbf{Aké agregácie sa vykonávajú:} systém počíta celkovú hmotnosť batožiny na cestujúceho (alebo na letenku) a porovnáva ju s limitom povoleným tarifou či pravidlami pre daný let. Pri viacerých kusoch sa agreguje súčet hmotností a podľa výsledku sa rozhoduje o doplatku alebo potrebe manuálneho zásahu.
+    \item \textbf{Aké záznamy sa menia:} mení sa stav letenky na checked-in, dopĺňa sa čas odbavenia a podľa návrhu aj identifikátor pracovníka, ktorý check-in vykonal. Popri tom sa ukladajú nové záznamy batožiny a môžu sa meniť pomocné polia súvisiace s odbavením (napr. interné poznámky alebo stav spracovania).
+    \item \textbf{Kontroly konzistencie:} overuje sa validita letenky, príslušnosť k letu, otvorené check-in okno a pravidlá kvality údajov pre batožinu, najmä \texttt{CHECK (weight > 0)}. Ak hmotnosť presiahne limit, systém musí vyvolať alternatívny tok (doplatok, korekcia údajov alebo zamietnutie ďalšieho kusu).
 \end{itemize}
 
 \subsubsection*{Alternatívne toky}
@@ -453,6 +452,16 @@ sa odbavenie a eviduje sa odovzdaná batožina.
 
 \textbf{Diagram aktivít} je vhodný, pretože obsahuje viacero rozhodnutí
 (validita letenky, hmotnosť batožiny, otvorenosť check-inu).
+
+\IfFileExists{assets/UC4.jpg}{%
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{assets/UC4.jpg}
+    \caption{Podporný UML diagram pre UC4}
+\end{figure}
+}{%
+\textit{Obrázok assets/UC4.jpg nebol nájdený.}
+}
 
 \subsection{UC5 - Boarding cestujúceho do lietadla}
 
@@ -472,18 +481,11 @@ bezpečnostnej kontrole.
 
 \subsubsection*{Čo sa deje na dátovej vrstve}
 \begin{itemize}
-    \item \textbf{Prehľadávané tabuľky:} \texttt{ticket}, \texttt{flight},
-    \texttt{passenger} a prípadne tabuľka udalostí nástupu (ak je vedená).
-    \item \textbf{Čítanie dát:} systém overí stav letenky (checked-in), príslušnosť
-    k letu a to, či je boarding pre let otvorený.
-    \item \textbf{Vznik nových entít:} vzniká záznam o boarding udalosti
-    (čas skenu, stav).
-    \item \textbf{Menené záznamy:} stav letenky sa mení na „boarded“, dopĺňa sa
-    čas nástupu.
-    \item \textbf{Agregácie:} počíta sa počet nastúpených cestujúcich a porovnanie
-    s počtom odbavených/predaných leteniek pre daný let.
-    \item \textbf{Kontroly:} idempotencia nástupu (zákaz duplicitného boardingu),
-    časové okno boardingu, zhoda boarding passu s letom a cestujúcim.
+    \item \textbf{Aké tabuľky sa prehľadávajú:} pri načítaní boarding passu sa číta \texttt{ticket} (stav letenky), \texttt{flight} (stav a časové okno boardingu) a \texttt{passenger} (zhoda identity). Ak systém vedie samostatnú tabuľku boarding udalostí, tá sa používa na kontrolu predchádzajúcich vstupov a na uloženie nového výsledku.
+    \item \textbf{Aké entity vznikajú:} vzniká záznam boarding udalosti s časom skenu, výsledkom validácie a prípadným dôvodom zamietnutia. Táto entita tvorí auditnú stopu nástupu a je dôležitá pre spätné dohľadanie priebehu boardingu.
+    \item \textbf{Aké agregácie sa vykonávajú:} systém priebežne počíta počet nastúpených cestujúcich na daný let a porovnáva ho s počtom checked-in alebo predaných leteniek. Agregácia umožňuje operatívne sledovať priebeh nástupu a včas identifikovať nezrovnalosti pred uzatvorením brány.
+    \item \textbf{Aké záznamy sa menia:} po úspešnom boardingu sa letenka aktualizuje na stav boarded a doplní sa čas nástupu. Súčasne sa zapíše boarding event; pri neúspešnom pokuse sa môže uložiť zamietnutý event bez zmeny stavu letenky.
+    \item \textbf{Kontroly konzistencie:} kontroluje sa zhoda boarding passu s cestujúcim a letom, otvorené boarding okno a idempotencia (ten istý cestujúci nesmie byť zapísaný ako boarded viackrát). Tieto kontroly zabraňujú duplicitám, chybnej evidencii a neoprávnenému nástupu.
 \end{itemize}
 
 \subsubsection*{Alternatívne toky}
@@ -499,44 +501,323 @@ bezpečnostnej kontrole.
 pracovníkom brány, boarding systémom a databázou počas krátkej, ale kritickej
 operácie.
 
+\IfFileExists{assets/UC5.jpg}{%
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{assets/UC5.jpg}
+    \caption{Podporný UML diagram pre UC5}
+\end{figure}
+}{%
+\textit{Obrázok assets/UC5.jpg nebol nájdený.}
+}
+
 \section{Návrh relačného modelu}
 \label{sec:relacnymodel}
 
-\subsection{Súbor tabuliek}
+\subsection{Diagram relačného modelu}
 
-Relačný model je postavený na nasledovných tabuľkách, pričom každá z nich má
-jasnú doménovú zodpovednosť:
+Relačný model je zdokumentovaný aj graficky. Diagram je vložený priamo v tomto
+PDF a zároveň je dostupný ako samostatný obrázok vo formáte JPG.
 
+\IfFileExists{assets/Fyzicky_datovy_model.jpg}{%
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.98\textwidth]{assets/Fyzicky_datovy_model.jpg}
+    \caption{Fyzický diagram relačného modelu}
+    \label{fig:fyzicky-datovy-model}
+\end{figure}
+}{%
+\textit{Obrázok assets/Fyzicky\_datovy\_model.jpg nebol nájdený.}
+}
+
+\subsection{Detailný popis každej tabuľky}
+
+\subsubsection*{\texttt{airport}}
 \begin{itemize}
-    \item \texttt{airport} --- evidencia letísk (identifikátor, názov, kód),
-    \item \texttt{passenger} --- evidencia cestujúcich (meno, priezvisko),
-    \item \texttt{ticket} --- obchodná a prevádzková väzba medzi cestujúcim a
-    letom (cena, číslo sedadla),
-    \item \texttt{flight} --- plánované a realizované lety s časmi odletu a
-    príletu, naviazané na lietadlo a runway,
-    \item \texttt{airplane} --- lietadlá vrátane informácie o aerolinke a stave,
-    \item \texttt{baggage} --- batožina priradená ku konkrétnemu cestujúcemu,
-    \item \texttt{runway} --- dráhy letiska vrátane ich aktuálneho stavu,
-    \item \texttt{hangar} --- hangáre s kapacitou a stavom dostupnosti,
-    \item \texttt{airplane\_hangar} --- prepojovacia tabuľka pre umiestnenie
-    lietadla v hangári,
-    \item \texttt{route} --- definícia trasy letu medzi zdrojovým a cieľovým
-    letiskom,
-    \item \texttt{airplane\_passenger} --- pomocná väzba pre kontext pohybu
-    cestujúceho vo vzťahu k letisku.
+    \item \textbf{Účel:} evidencia letísk (názov, kód, mesto, krajina).
+    \item \textbf{Atribúty a obmedzenia:} \texttt{id SERIAL PK}, \texttt{name VARCHAR}, \texttt{code
+        VARCHAR}, \texttt{city VARCHAR}, \texttt{country VARCHAR}.
+    \item \textbf{Primárny kľúč:} umelý kľúč \texttt{id}; je stabilný a nezávislý od biznis hodnoty
+        \texttt{code}.
+    \item \textbf{Cudzie kľúče:} tabuľka nemá vlastné FK; odkazujú na ňu \texttt{runway} a \texttt{route}.
 \end{itemize}
 
-Medzi tabuľkami sú definované cudzie kľúče, ktoré zabezpečujú referenčnú
-integritu a zabraňujú vzniku nekonzistentných dát. Základné väzby sú:
-\texttt{baggage -> passenger}, \texttt{ticket -> passenger},
-\texttt{ticket -> flight}, \texttt{flight -> airplane},
-\texttt{flight -> runway}, \texttt{runway -> airport},
-\texttt{hangar -> airport}, \texttt{airplane\_hangar -> airplane/hangar},
-\texttt{route -> flight} a \texttt{route -> airport} (zdroj aj cieľ).
+\subsubsection*{\texttt{passenger}}
+\begin{itemize}
+    \item \textbf{Účel:} evidencia cestujúcich pre rezervácie, check-in a boarding.
+    \item \textbf{Atribúty a obmedzenia:} \texttt{id SERIAL PK}, \texttt{firstname VARCHAR},
+        \texttt{lastname VARCHAR}, \texttt{email VARCHAR}, \texttt{passport\_number VARCHAR},
+        \texttt{nationality VARCHAR}.
+    \item \textbf{Primárny kľúč:} umelý kľúč \texttt{id}; praktickejší a bezpečnejší ako použitie čísla pasu.
+    \item \textbf{Cudzie kľúče:} tabuľka nemá vlastné FK.
+\end{itemize}
 
-Takto navrhnutá štruktúra umožňuje jednoducho zostavovať dotazy, ktoré kombinujú
-obchodné informácie (letenka, cestujúci), prevádzkové informácie (lietadlo,
-dráha, hangár) a navigačné informácie (trasa, prestup, destinácia).
+\subsubsection*{\texttt{ticket}}
+\begin{itemize}
+    \item \textbf{Účel:} reprezentuje letenku/rezerváciu cestujúceho na konkrétny let.
+    \item \textbf{Atribúty a obmedzenia:} \texttt{id SERIAL PK}, \texttt{flight\_id INT FK},
+        \texttt{passenger\_id INT FK}, \texttt{seat\_id INT FK}, \texttt{ticket\_status\_id INT FK},
+        \texttt{price DECIMAL CHECK (price >= 0)}, \texttt{booked\_at TIMESTAMPTZ DEFAULT
+        CURRENT\_TIMESTAMP}, \texttt{checked\_in\_at TIMESTAMPTZ}.
+    \item \textbf{Primárny kľúč:} umelý kľúč \texttt{id}; letenka je samostatná transakčná entita.
+    \item \textbf{Cudzie kľúče:} \texttt{flight\_id -> flight(id)}, \texttt{passenger\_id ->
+        passenger(id)}, \texttt{seat\_id -> seat(id)}, \texttt{ticket\_status\_id ->
+        ticket\_status(id)}.
+\end{itemize}
+
+\subsubsection*{\texttt{ticket\_status}}
+\begin{itemize}
+    \item \textbf{Účel:} číselník stavov leteniek.
+    \item \textbf{Atribúty a obmedzenia:} \texttt{id SERIAL PK}, \texttt{status VARCHAR}.
+    \item \textbf{Primárny kľúč:} umelý kľúč \texttt{id}; štandardné riešenie pre číselníky.
+    \item \textbf{Cudzie kľúče:} tabuľka nemá vlastné FK.
+\end{itemize}
+
+\subsubsection*{\texttt{flight}}
+\begin{itemize}
+    \item \textbf{Účel:} evidencia konkrétnych letov a ich prevádzkových väzieb.
+    \item \textbf{Atribúty a obmedzenia:} \texttt{id SERIAL PK}, \texttt{runway\_id INT FK},
+        \texttt{airplane\_id INT FK}, \texttt{pilot\_id INT FK}, \texttt{flight\_status\_id INT FK},
+        \texttt{flight\_number VARCHAR}, \texttt{departure\_at TIMESTAMPTZ}, \texttt{arrival\_at
+        TIMESTAMPTZ}.
+    \item \textbf{Primárny kľúč:} umelý kľúč \texttt{id}; číslo letu nemusí byť globálne jedinečné v čase.
+    \item \textbf{Cudzie kľúče:} \texttt{runway\_id -> runway(id)}, \texttt{airplane\_id ->
+        airplane(id)}, \texttt{pilot\_id -> pilot(id)}, \texttt{flight\_status\_id ->
+        flight\_status(id)}.
+\end{itemize}
+
+\subsubsection*{\texttt{flight\_status}}
+\begin{itemize}
+    \item \textbf{Účel:} číselník stavov letu (napr. departed, landed, cancelled).
+    \item \textbf{Atribúty a obmedzenia:} \texttt{id SERIAL PK}, \texttt{status VARCHAR}.
+    \item \textbf{Primárny kľúč:} umelý kľúč \texttt{id}.
+    \item \textbf{Cudzie kľúče:} tabuľka nemá vlastné FK.
+\end{itemize}
+
+\subsubsection*{\texttt{airplane}}
+\begin{itemize}
+    \item \textbf{Účel:} evidencia lietadiel použitých na lety.
+    \item \textbf{Atribúty a obmedzenia:} \texttt{id SERIAL PK}, \texttt{airline VARCHAR},
+        \texttt{model VARCHAR}, \texttt{capacity INT CHECK (capacity > 0)}, \texttt{status VARCHAR
+        DEFAULT 'active'}.
+    \item \textbf{Primárny kľúč:} umelý kľúč \texttt{id}; model nevyužíva prirodzený jednoznačný
+        identifikátor.
+    \item \textbf{Cudzie kľúče:} tabuľka nemá vlastné FK.
+\end{itemize}
+
+\subsubsection*{\texttt{baggage}}
+\begin{itemize}
+    \item \textbf{Účel:} evidencia batožiny priradenej ku konkrétnej letenke.
+    \item \textbf{Atribúty a obmedzenia:} \texttt{id SERIAL PK}, \texttt{ticket\_id INT FK},
+        \texttt{baggage\_status\_id INT FK}, \texttt{weight REAL CHECK (weight > 0)}.
+    \item \textbf{Primárny kľúč:} umelý kľúč \texttt{id}; umožňuje evidovať viac kusov k jednej letenke.
+    \item \textbf{Cudzie kľúče:} \texttt{ticket\_id -> ticket(id)}, \texttt{baggage\_status\_id ->
+        baggage\_status(id)}.
+\end{itemize}
+
+\subsubsection*{\texttt{baggage\_status}}
+\begin{itemize}
+    \item \textbf{Účel:} číselník stavov batožiny (napr. naložená, stratená).
+    \item \textbf{Atribúty a obmedzenia:} \texttt{id SERIAL PK}, \texttt{status VARCHAR}.
+    \item \textbf{Primárny kľúč:} umelý kľúč \texttt{id}.
+    \item \textbf{Cudzie kľúče:} tabuľka nemá vlastné FK.
+\end{itemize}
+
+\subsubsection*{\texttt{runway}}
+\begin{itemize}
+    \item \textbf{Účel:} evidencia dráh prislúchajúcich letiskám.
+    \item \textbf{Atribúty a obmedzenia:} \texttt{id SERIAL PK}, \texttt{airport\_id INT FK},
+        \texttt{name VARCHAR}, \texttt{status VARCHAR DEFAULT 'active'}.
+    \item \textbf{Primárny kľúč:} umelý kľúč \texttt{id}.
+    \item \textbf{Cudzie kľúče:} \texttt{airport\_id -> airport(id)}.
+\end{itemize}
+
+\subsubsection*{\texttt{airplane\_hangar}}
+\begin{itemize}
+    \item \textbf{Účel:} väzobná tabuľka M:N medzi lietadlami a hangármi s históriou pobytu.
+    \item \textbf{Atribúty a obmedzenia:} \texttt{id SERIAL PK}, \texttt{airplane\_id INT FK},
+        \texttt{hangar\_id INT FK}, \texttt{arrived\_at TIMESTAMPTZ DEFAULT CURRENT\_TIMESTAMP},
+        \texttt{departed\_at TIMESTAMP}.
+    \item \textbf{Primárny kľúč:} uprednostnený umelý kľúč \texttt{id}; umožňuje opakované
+        historické pobyty rovnakého lietadla v tom istom hangári.
+    \item \textbf{Cudzie kľúče:} \texttt{airplane\_id -> airplane(id)}, \texttt{hangar\_id -> hangar(id)}.
+\end{itemize}
+
+\subsubsection*{\texttt{hangar}}
+\begin{itemize}
+    \item \textbf{Účel:} evidencia hangárov na letiskách.
+    \item \textbf{Atribúty a obmedzenia:} \texttt{id SERIAL PK}, \texttt{airport\_id INT FK},
+        \texttt{name VARCHAR}, \texttt{capacity INT CHECK (capacity > 0)}, \texttt{status VARCHAR
+        DEFAULT 'operational'}.
+    \item \textbf{Primárny kľúč:} umelý kľúč \texttt{id}.
+    \item \textbf{Cudzie kľúče:} \texttt{airport\_id -> airport(id)}.
+\end{itemize}
+
+\subsubsection*{\texttt{route}}
+\begin{itemize}
+    \item \textbf{Účel:} evidencia trasy letu medzi zdrojovým a cieľovým letiskom.
+    \item \textbf{Atribúty a obmedzenia:} \texttt{id SERIAL PK}, \texttt{dest\_airport\_id INT FK},
+        \texttt{src\_airport\_id INT FK}, \texttt{flight\_id INT FK}.
+    \item \textbf{Primárny kľúč:} umelý kľúč \texttt{id}; jednoduchá identifikácia každého segmentu trasy.
+    \item \textbf{Cudzie kľúče:} \texttt{flight\_id -> flight(id)}, \texttt{src\_airport\_id ->
+        airport(id)}, \texttt{dest\_airport\_id -> airport(id)}.
+\end{itemize}
+
+\subsubsection*{\texttt{boarding}}
+\begin{itemize}
+    \item \textbf{Účel:} evidencia nástupu cestujúceho na palubu.
+    \item \textbf{Atribúty a obmedzenia:} \texttt{id SERIAL PK}, \texttt{ticket\_id INT FK},
+        \texttt{boarded\_at TIMESTAMPTZ DEFAULT CURRENT\_TIMESTAMP}, \texttt{boarding\_status\_id
+        INT FK}.
+    \item \textbf{Primárny kľúč:} umelý kľúč \texttt{id}.
+    \item \textbf{Cudzie kľúče:} \texttt{ticket\_id -> ticket(id)}, \texttt{boarding\_status\_id ->
+        boarding\_status(id)}.
+\end{itemize}
+
+\subsubsection*{\texttt{boarding\_status}}
+\begin{itemize}
+    \item \textbf{Účel:} číselník stavov boardingu.
+    \item \textbf{Atribúty a obmedzenia:} \texttt{id INT/SERIAL PK}, \texttt{status VARCHAR}.
+    \item \textbf{Primárny kľúč:} umelý kľúč \texttt{id}.
+    \item \textbf{Cudzie kľúče:} tabuľka nemá vlastné FK.
+\end{itemize}
+
+\subsubsection*{\texttt{pilot}}
+\begin{itemize}
+    \item \textbf{Účel:} evidencia pilotov priraditeľných k letom.
+    \item \textbf{Atribúty a obmedzenia:} \texttt{id SERIAL PK}, \texttt{firstname VARCHAR},
+        \texttt{lastname VARCHAR}, \texttt{licence\_number VARCHAR}.
+    \item \textbf{Primárny kľúč:} umelý kľúč \texttt{id}; praktickejší ako použitie
+        \texttt{licence\_number} ako PK.
+    \item \textbf{Cudzie kľúče:} tabuľka nemá vlastné FK.
+\end{itemize}
+
+\subsubsection*{\texttt{seat}}
+\begin{itemize}
+    \item \textbf{Účel:} evidencia sedadiel v jednotlivých lietadlách.
+    \item \textbf{Atribúty a obmedzenia:} \texttt{id SERIAL PK}, \texttt{seat\_number VARCHAR},
+        \texttt{airplane\_id INT FK}.
+    \item \textbf{Primárny kľúč:} umelý kľúč \texttt{id}; prirodzený kandidát je kombinácia
+        \texttt{(airplane\_id, seat\_number)}.
+    \item \textbf{Cudzie kľúče:} \texttt{airplane\_id -> airplane(id)}.
+\end{itemize}
+
+\subsection{Popis vzťahov medzi tabuľkami}
+
+Väčšina vzťahov v tomto modeli je typu 1:N a na fyzickej úrovni je realizovaná cudzím kľúčom v
+podradenej tabuľke. Jediný vzťah typu M:N je medzi \texttt{airplane} a \texttt{hangar}, ktorý je
+realizovaný cez väzobnú tabuľku \texttt{airplane\_hangar}.
+
+Medzi \texttt{passenger} a \texttt{ticket} je vzťah 1:N. Jeden pasažier môže mať viac leteniek, ale
+každá letenka patrí práve jednému pasažierovi. Tento vzťah je realizovaný cez
+\texttt{ticket.passenger\_id}.
+
+Medzi \texttt{flight} a \texttt{ticket} je taktiež vzťah 1:N. Jeden let môže mať viac leteniek,
+pričom každá letenka patrí jednému letu. Realizácia je cez \texttt{ticket.flight\_id}.
+
+Medzi \texttt{seat} a \texttt{ticket} je podľa diagramu vzťah 1:N. Jedno sedadlo môže byť použité vo
+viacerých letenkách v čase, ale každá letenka odkazuje na jedno sedadlo. Tento vzťah je realizovaný
+cez \texttt{ticket.seat\_id}.
+
+Medzi \texttt{ticket\_status} a \texttt{ticket} je vzťah 1:N. Jeden stav môže patriť viacerým
+letenkám, ale každá letenka má práve jeden stav. Vzťah je realizovaný cez
+\texttt{ticket.ticket\_status\_id}.
+
+Medzi \texttt{ticket} a \texttt{baggage} je vzťah 1:N. Jedna letenka môže mať viac kusov batožiny,
+ale každý kus batožiny patrí jednej letenke. Realizácia je cez \texttt{baggage.ticket\_id}.
+
+Medzi \texttt{baggage\_status} a \texttt{baggage} je vzťah 1:N. Jeden stav batožiny môže byť
+priradený viacerým kusom batožiny, pričom každý kus batožiny má jeden stav. Realizácia je cez
+\texttt{baggage.baggage\_status\_id}.
+
+Medzi \texttt{ticket} a \texttt{boarding} je podľa diagramu vzťah 1:N. To znamená, že jedna letenka
+môže mať viac boarding záznamov a každý boarding záznam patrí jednej letenke. Tento vzťah je
+realizovaný cez \texttt{boarding.ticket\_id}. Z vecného hľadiska by sa možno očakával skôr jeden
+boarding záznam na jednu letenku, ale diagram to takto striktne neobmedzuje.
+
+Medzi \texttt{boarding\_status} a \texttt{boarding} je vzťah 1:N. Jeden stav boardingu môže patriť
+viacerým boarding záznamom, ale každý boarding záznam má práve jeden stav. Realizácia je cez
+\texttt{boarding.boarding\_status\_id}.
+
+Medzi \texttt{airport} a \texttt{runway} je vzťah 1:N. Jedno letisko môže mať viac dráh, ale každá
+dráha patrí jednému letisku. Realizácia je cez \texttt{runway.airport\_id}.
+
+Medzi \texttt{runway} a \texttt{flight} je vzťah 1:N. Jedna dráha môže byť použitá pre viac letov,
+ale každý let má pridelenú jednu dráhu. Realizácia je cez \texttt{flight.runway\_id}.
+
+Medzi \texttt{airplane} a \texttt{flight} je vzťah 1:N. Jedno lietadlo môže vykonať viac letov, ale
+každý let má pridelené jedno lietadlo. Realizácia je cez \texttt{flight.airplane\_id}.
+
+Medzi \texttt{pilot} a \texttt{flight} je vzťah 1:N. Jeden pilot môže pilotovať viac letov, ale
+každý let má jedného pilota. Realizácia je cez \texttt{flight.pilot\_id}.
+
+Medzi \texttt{flight\_status} a \texttt{flight} je vzťah 1:N. Jeden stav letu môže byť priradený
+viacerým letom, ale každý let má presne jeden stav. Realizácia je cez
+\texttt{flight.flight\_status\_id}.
+
+Medzi \texttt{airport} a \texttt{hangar} je vzťah 1:N. Jedno letisko môže mať viac hangárov, ale
+každý hangár patrí jednému letisku. Realizácia je cez \texttt{hangar.airport\_id}.
+
+Medzi \texttt{airplane} a \texttt{seat} je vzťah 1:N. Jedno lietadlo má viac sedadiel, ale každé
+sedadlo patrí jednému lietadlu. Realizácia je cez \texttt{seat.airplane\_id}.
+
+Medzi \texttt{flight} a \texttt{route} je podľa diagramu vzťah 1:N. To znamená, že jeden let môže
+mať viac trás a každá trasa patrí jednému letu. Je to trochu netypické, pretože bežne by sa
+očakávalo, že let má práve jednu trasu. Na fyzickej úrovni je vzťah realizovaný cez
+\texttt{route.flight\_id}.
+
+Medzi \texttt{airport} a \texttt{route} existujú vlastne dva samostatné vzťahy 1:N. Jeden v role
+zdrojového letiska cez \texttt{route.src\_airport\_id} a druhý v role cieľového letiska cez
+\texttt{route.dest\_airport\_id}.
+
+Medzi \texttt{airplane} a \texttt{hangar} je vzťah M:N, ktorý je realizovaný cez tabuľku
+\texttt{airplane\_hangar}. Jedno lietadlo môže byť v rôznych hangároch a jeden hangár môže obsahovať
+rôzne lietadlá. Navyše táto väzobná tabuľka uchováva aj vlastné atribúty \texttt{arrived\_at} a
+\texttt{departed\_at}, takže ide o typickú väzbu s vlastnými údajmi.
+
+\subsection{Kardinalita, povinnosť a správanie pri mazaní}
+
+\begin{itemize}
+    \item V modeli sa typicky vyskytuje kardinalita \texttt{1} na strane rodiča a \texttt{0..*} na
+        strane potomka.
+    \item Z pohľadu zachovania histórie je vo väčšine doménových vzťahov bezpečnejšie použiť
+        \texttt{RESTRICT} (alebo ekvivalent \texttt{NO ACTION}) pri mazaní rodiča.
+    \item \texttt{CASCADE} sa dá zvážiť len pri čisto závislých pomocných záznamoch (napr.
+        \texttt{ticket -> baggage}, \texttt{ticket -> boarding}) a len ak systém nechce dlhodobo
+        držať históriu.
+    \item Pri transakčných a auditných údajoch (letenky, lety, boarding, batožina) je odporúčaný
+        konzervatívny prístup s \texttt{RESTRICT}.
+\end{itemize}
+
+\subsection{Ako sú zabezpečené integritné obmedzenia z kapitoly 2}
+
+\begin{itemize}
+    \item \textbf{Entitná integrita:} každá tabuľka má primárny kľúč, takže každý záznam je
+        jednoznačne identifikovateľný.
+    \item \textbf{Referenčná integrita:} cudzími kľúčmi je vynútená existencia rodičovských záznamov
+        (napr. \texttt{ticket} bez platného \texttt{passenger}/\texttt{flight} nie je možné uložiť).
+    \item \textbf{Doménová integrita:} dátové typy, \texttt{CHECK} podmienky a \texttt{DEFAULT}
+        hodnoty (\texttt{price >= 0}, \texttt{weight > 0}, \texttt{capacity > 0},
+        \texttt{CURRENT\_TIMESTAMP}, predvolené stavy).
+    \item \textbf{Dôležité doplnenia:} odporúča sa doplniť \texttt{UNIQUE} obmedzenia pre
+        \texttt{airport.code}, \texttt{passenger.email}, \texttt{passenger.passport\_number},
+        \texttt{pilot.licence\_number} a \texttt{seat(airplane\_id, seat\_number)}.
+    \item \textbf{Ďalšie odporúčané pravidlá:} \texttt{route.src\_airport\_id <>
+        route.dest\_airport\_id}, \texttt{flight.departure\_at < flight.arrival\_at} a doménové
+        pravidlo zhody sedadla s lietadlom letu (typicky trigger alebo rozšírené obmedzenie).
+\end{itemize}
+
+\subsection{Je možné realizovať všetky používateľské scenáre?}
+
+Vo všeobecnosti \textbf{áno}. Navrhnuté tabuľky a väzby pokrývajú kľúčové scenáre:
+rezerváciu letenky, správu letu a trasy, check-in, boarding, evidenciu batožiny,
+a tiež prevádzkový kontext lietadiel (dráhy, hangáre).
+
+Zároveň platí, že pre prísnejšie biznis pravidlá je vhodné model doplniť o
+ďalšie databázové obmedzenia. Bez nich databáza sama negarantuje napríklad
+jednoznačný predaj sedadla na konkrétny let, presný počet povolených boarding
+záznamov na letenku alebo striktne jednu trasu pre každý let (ak je to
+požiadavka domény).
 
 
 \subsection{Zhodnotenie}
@@ -768,7 +1049,7 @@ For anything not covered here, the Overleaf documentation
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.25\textwidth]{../../logo.jpg}
+    \includegraphics[width=0.25\textwidth]{assets/logo.png}
     \caption{Faculty logo used on the cover page}
     \label{fig:logo}
 \end{figure}
