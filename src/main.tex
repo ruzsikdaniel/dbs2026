@@ -271,7 +271,7 @@ reprezentujú typické operácie systému. Scenáre sú navrhnuté tak, aby nebo
 iba jednoduché CRUD operácie, ale pokrývali celý proces od interakcie aktéra až
 po zmeny na dátovej vrstve.
 
-\subsection{Rezervácia letu a vystavenie letenky}
+\subsection{UC1 - Rezervácia letu a vystavenie letenky}
 
 \subsubsection*{Stručný popis}
 
@@ -284,8 +284,10 @@ a systém mu vystaví letenku so sedadlom.
     \item Systém zobrazí dostupné lety.
     \item Cestujúci vyberie konkrétny let.
     \item Systém zobrazí dostupné sedadlá a cenu.
+    \item Cestujúci vyberie sedadlo.
+    \item Systém uloží voľbu sedadla.
     \item Cestujúci potvrdí rezerváciu a vykoná platbu.
-    \item Systém priradí sedadlo a vytvorí letenku.
+    \item Systém  vytvorí letenku.
     \item Cestujúci dostane potvrdenie rezervácie.
 \end{enumerate}
 
@@ -319,7 +321,7 @@ a systém mu vystaví letenku so sedadlom.
 cestujúcim, rezervačným modulom, platobným modulom a databázou v presnom
 časovom poradí.
 
-\subsection{Zobrazenie trasy letu a cieľovej destinácie}
+\subsection{UC2 - Zobrazenie trasy letu a cieľovej destinácie}
 
 \subsubsection*{Stručný popis}
 
@@ -328,10 +330,10 @@ prehľad o trase letu, prestupoch a finálnej destinácii.
 
 \subsubsection*{Hlavný tok (krok za krokom)}
 \begin{enumerate}
-    \item Používateľ otvorí detail letu alebo letenky.
+    \item Pracovník otvorí detail letu alebo letenky.
     \item Systém načíta údaje o trase letu.
     \item Systém zobrazí odletové a príletové letisko.
-    \item Používateľ vidí kompletný itinerár vrátane cieľovej destinácie.
+    \item Pracovník vidí kompletný itinerár vrátane cieľovej destinácie.
 \end{enumerate}
 
 \subsubsection*{Čo sa deje na dátovej vrstve}
@@ -353,7 +355,6 @@ prehľad o trase letu, prestupoch a finálnej destinácii.
 \subsubsection*{Alternatívne toky}
 \begin{itemize}
     \item Trasa nie je dostupná: systém zobrazí stav „trasa nie je definovaná".
-    \item Let bol zmenený: systém zobrazí aktualizovanú trasu a upozornenie.
 \end{itemize}
 
 \subsubsection*{Podporný UML diagram}
@@ -361,7 +362,7 @@ prehľad o trase letu, prestupoch a finálnej destinácii.
 \textbf{Diagram aktivít} je vhodný, pretože prehľadne zobrazuje vetvenie
 (priamy let vs. prestup) a rozhodovacie body pri skladaní itinerára.
 
-\subsection{Sledovanie aktuálneho stavu letu a lietadla}
+\subsection{UC3 - Sledovanie aktuálneho stavu letu a lietadla}
 
 \subsubsection*{Stručný popis}
 
@@ -409,7 +410,7 @@ priradeného lietadla (napr. hangár, runway, aktívny let).
 \textbf{Sekvenčný diagram} je vhodný, pretože ukazuje postupné dopyty na viaceré
 prevádzkové entity a následné zlúčenie výsledkov do jedného statusu.
 
-\subsection{Odbavenie cestujúceho a evidovanie batožiny}
+\subsection{UC4 - Odbavenie cestujúceho a evidovanie batožiny}
 
 \subsubsection*{Stručný popis}
 
@@ -453,7 +454,7 @@ sa odbavenie a eviduje sa odovzdaná batožina.
 \textbf{Diagram aktivít} je vhodný, pretože obsahuje viacero rozhodnutí
 (validita letenky, hmotnosť batožiny, otvorenosť check-inu).
 
-\subsection{Boarding cestujúceho do lietadla}
+\subsection{UC5 - Boarding cestujúceho do lietadla}
 
 \subsubsection*{Stručný popis}
 
