@@ -982,7 +982,10 @@ vlastnými údajmi.
 \subsection{Kardinalita, povinnosť a správanie pri mazaní}
 
 \begin{itemize}
-    \item V modeli sa typicky vyskytuje kardinalita \texttt{1} na strane rodiča a \texttt{0..*} na strane potomka.
+    
+    \item Na kardinalitu typu 1:1 sme v našom systéme nenašli potrebu.
+    \item Typ vzťahu M:N sa vyskytuje iba v prípade väzobnej tabuľky \texttt{airplane\_hangar}.
+    \item V dátovom modeli sa typicky vyskytuje kardinalita \texttt{1} na strane rodiča a \texttt{0..*} na strane potomka.
     Pre nasledujúce prípady sme ale rozhodli použiť kardinalitu \texttt{1} -> \texttt{1..*}:
 
     \begin{itemize}
@@ -996,7 +999,6 @@ vlastnými údajmi.
         Lietadlo po vykonaní svojho letu (presun medzi runway-ami dvoch rôznych letísk) by mohla mať potrebu na krátkodobé odstavenie. \\
         Pre naše účely je teda potrebné si zadefinovať aspoň jeden \texttt{runway} a \texttt{hangar} pre letisko.
     \end{itemize}
-    
 
     \item \texttt{passenger -> ticket}: RESTRICT --- Letenka transakčný doklad patriaci konkrétnemu cestujúcemu. Zmazanie cestujúceho by zanechalo letenky bez vlastníka.
     \item \texttt{flight -> ticket}: RESTRICT --- Rovnaký problém nastáva pri zmazaní letu. Letenka bez priradeného letu je nezmyselné.
